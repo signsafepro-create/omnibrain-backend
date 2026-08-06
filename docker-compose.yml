@@ -1,0 +1,99 @@
+﻿version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: client3_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: client3
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: client3_liljr
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./models/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U client3 -d client3_liljr"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - client3_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: client3_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - client3_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.backend
+    container_name: client3_backend
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      - DATABASE_URL=postgresql://client3:${DB_PASSWORD}@postgres:5432/client3_liljr
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - client3_network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', r=>{process.exit(r.statusCode===200?0:1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.frontend
+    container_name: client3_frontend
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    depends_on:
+      - backend
+    networks:
+      - client3_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: client3_nginx
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - client3_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  client3_network:
+    driver: bridge

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>LIL JR 2.0</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--c1:#00f0ff;--c3:#d000ff;--c4:#ff0055;--c5:#00ff88;}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--c1);font-family:'Share Tech Mono',monospace;touch-action:manipulation}
+.bg{position:fixed;inset:0;background:#050510;z-index:0}
+.bg::after{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(0,240,255,0.08) 0%,transparent 60%);pointer-events:none}
+.scan{position:fixed;inset:0;z-index:9999;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.2) 2px,rgba(0,0,0,0.2) 4px);mix-blend-mode:multiply;opacity:0.3}
+.top{position:fixed;top:0;left:0;right:0;z-index:100;padding:12px 16px;display:flex;justify-content:space-between;align-items:flex-start;background:linear-gradient(180deg,rgba(0,0,0,0.8),transparent)}
+.statg{display:flex;flex-direction:column;gap:4px}
+.statr{font-size:10px;letter-spacing:2px;color:rgba(0,240,255,0.6);display:flex;align-items:center;gap:6px}
+.statr .ind{width:6px;height:6px;border-radius:50%;background:var(--c1);box-shadow:0 0 8px var(--c1)}
+.statr .ind.r{background:var(--c4);box-shadow:0 0 8px var(--c4)}
+.sv{color:var(--c1);font-weight:700;margin-left:4px}
+.bub{position:fixed;top:42%;left:50%;transform:translate(-50%,-50%);z-index:60;width:280px;padding:20px;border-radius:20px;background:rgba(0,0,0,0.6);border:1px solid rgba(0,240,255,0.2);cursor:pointer;text-align:center;backdrop-filter:blur(12px);box-shadow:0 0 40px rgba(0,240,255,0.1)}
+.bubt{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:2px;text-shadow:0 0 20px rgba(0,240,255,0.5)}
+.bubs{font-size:11px;letter-spacing:4px;color:rgba(0,240,255,0.5);margin-top:10px}
+.chat{position:fixed;inset:0;z-index:500;background:#000;display:none;flex-direction:column}
+.chat.active{display:flex}
+.ch{height:60px;border-bottom:1px solid rgba(0,240,255,0.1);display:flex;align-items:center;gap:14px;padding:0 20px;background:linear-gradient(180deg,rgba(0,0,0,0.9),transparent)}
+.cav{width:40px;height:40px;border-radius:50%;border:2px solid var(--c1);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px var(--c1)}
+.cn{font-family:'Orbitron',sans-serif;font-size:16px;letter-spacing:3px;color:var(--c1);text-shadow:0 0 10px var(--c1)}
+.cx{margin-left:auto;width:36px;height:36px;border:1px solid rgba(0,240,255,0.15);border-radius:10px;background:rgba(0,240,255,0.03);color:var(--c1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px}
+.cb{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:88%;padding:14px 16px;border-radius:14px;font-size:14px;line-height:1.5;border:1px solid;animation:ma 0.3s}
+@keyframes ma{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg.ai{align-self:flex-start;background:rgba(0,240,255,0.05);border-color:rgba(0,240,255,0.15);color:#a0f0ff;border-bottom-left-radius:4px}
+.msg.user{align-self:flex-end;background:rgba(208,0,255,0.05);border-color:rgba(208,0,255,0.15);color:#e0c0ff;border-bottom-right-radius:4px}
+.msg .tm{font-size:9px;color:rgba(255,255,255,0.2);margin-top:6px;display:block}
+.ci{padding:14px 20px 30px;border-top:1px solid rgba(0,240,255,0.08);display:flex;gap:12px;background:linear-gradient(0deg,rgba(0,0,0,0.8),transparent)}
+.ci input{flex:1;background:rgba(0,240,255,0.04);border:1px solid rgba(0,240,255,0.12);color:var(--c1);padding:14px 16px;border-radius:12px;outline:none;font-size:14px;font-family:'Share Tech Mono',monospace}
+.ci input::placeholder{color:rgba(0,240,255,0.25)}
+.ci button{background:linear-gradient(135deg,var(--c1),var(--c3));border:none;color:#000;font-weight:900;padding:0 22px;border-radius:12px;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:2px}
+.dock{position:fixed;bottom:0;left:0;right:0;z-index:200;height:70px;background:linear-gradient(0deg,rgba(0,0,0,0.95),rgba(0,0,0,0.5));border-top:1px solid rgba(0,240,255,0.08);display:flex;justify-content:space-around;align-items:center;padding:0 10px 8px}
+.ditem{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:8px 12px;border-radius:10px}
+.ditem.on .dicon{color:var(--c1);text-shadow:0 0 12px var(--c1)}
+.dicon{width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:16px;color:rgba(0,240,255,0.4)}
+.dlab{font-size:8px;letter-spacing:2px;color:rgba(0,240,255,0.3)}
+.ditem.on .dlab{color:var(--c1)}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="scan"></div>
+<div class="top">
+  <div class="statg">
+    <div class="statr"><div class="ind"></div> GALAXY S21</div>
+    <div class="statr"><div class="ind r"></div> DIRECTED — <span class="sv">87%</span></div>
+  </div>
+  <div class="statg" style="align-items:flex-end">
+    <div class="statr">NEURAL <span class="sv">87%</span></div>
+    <div class="statr">SYNC <span class="sv">99.8%</span></div>
+  </div>
+</div>
+<div class="bub" onclick="openChat()">
+  <div class="bubt">Hey, I'm Lil Jr.</div>
+  <div class="bubs">TAP ME TO TALK</div>
+</div>
+<div class="chat" id="chatOverlay">
+  <div class="ch">
+    <div class="cav">🧠</div>
+    <div class="cn">LIL JR</div>
+    <div class="cx" onclick="closeChat()">✕</div>
+  </div>
+  <div class="cb" id="chatBox">
+    <div class="msg ai"><div>I am Lil JR 2.0. All 21 tiers online. Speak freely — I never judge, never forget, never stop.</div><span class="tm">20:46:00</span></div>
+  </div>
+  <div class="ci">
+    <input id="msgIn" placeholder="Enter neural command..." onkeydown="if(event.key==='Enter')send()">
+    <button onclick="send()">SEND</button>
+  </div>
+</div>
+<div class="dock">
+  <div class="ditem on" onclick="goHome()"><div class="dicon">🔗</div><div class="dlab">LINK</div></div>
+  <div class="ditem" onclick="openChat()"><div class="dicon">💬</div><div class="dlab">CHAT</div></div>
+  <div class="ditem"><div class="dicon">📡</div><div class="dlab">SCOPES</div></div>
+  <div class="ditem"><div class="dicon">📈</div><div class="dlab">TRADE</div></div>
+  <div class="ditem"><div class="dicon">🛡️</div><div class="dlab">DEF</div></div>
+  <div class="ditem"><div class="dicon">◈</div><div class="dlab">MORE</div></div>
+</div>
+const API = 'http://localhost:8081';
+let activeTier='brain';
+function openChat(){document.getElementById('chatOverlay').classList.add('active');}
+function closeChat(){document.getElementById('chatOverlay').classList.remove('active');}
+function goHome(){closeChat();}
+function tm(){const d=new Date();return d.toTimeString().split(' ')[0]}
+function addChat(txt,who){
+  const b=document.getElementById('chatBox');const m=document.createElement('div');m.className='msg '+who;
+  m.innerHTML='<div>'+txt+'</div><span class="tm">'+tm()+'</span>';b.appendChild(m);b.scrollTop=b.scrollHeight;
+}
+async function send(){
+  const i=document.getElementById('msgIn');const t=i.value.trim();if(!t)return;i.value='';
+  addChat(t,'user');
+  try{
+    const r=await fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,persona:activeTier})});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();addChat(d.response||'...','ai');
+  }catch(e){addChat('Neural link disrupted. Autonomous fallback engaged.','ai');}
+}
+async function poll(){
+  try{await fetch(API+'/api/health',{cache:'no-store'});}catch(e){}
+}
+setInterval(poll,10000);poll();
+</script>
+</body>
+</html>

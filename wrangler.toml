@@ -1,0 +1,10 @@
+name = "x-sovereign-pages"
+account_id = "<CLOUDFLARE_ACCOUNT_ID_PLACEHOLDER>"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+[build]
+command = "npm run build:prod"
+
+[env.production]
+vars = { DOMAIN = "<CUSTOM_DOMAIN_PLACEHOLDER>" }

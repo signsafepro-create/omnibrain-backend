@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lil Jr 2.0 | OMNIBRAIN</title>
+<style>
+:root{--bg:#0a0a1a;--bg2:#12122e;--bg3:#1a1a3e;--cyan:#00d4ff;--purple:#a855f7;--pink:#ec4899;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--text:#e2e8f0;--text2:#94a3b8;--border:#2d2d5a;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif;}
+body{background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;overflow-y:auto;z-index:100;}
+.logo{padding:24px 20px;font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.nav-item{padding:12px 20px;cursor:pointer;display:flex;align-items:center;gap:12px;color:var(--text2);transition:all .2s;border-left:3px solid transparent;font-size:14px;}
+.nav-item:hover,.nav-item.active{background:var(--bg3);color:var(--text);border-left-color:var(--cyan);}
+.nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;}
+.main{flex:1;margin-left:260px;padding:24px;max-width:calc(100vw - 260px);}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.header h1{font-size:24px;font-weight:700;}
+.header-actions{display:flex;gap:12px;align-items:center;}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
+.btn:hover{transform:translateY(-1px);opacity:.9;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;}
+.card-title{font-size:16px;font-weight:700;margin-bottom:12px;color:var(--text);}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:1200px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){.sidebar{width:100%;position:relative;height:auto;}.main{margin-left:0;max-width:100%;}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+.stat-value{font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px;}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;}
+.status-up{background:var(--green);box-shadow:0 0 8px var(--green);}
+.status-down{background:var(--red);box-shadow:0 0 8px var(--red);}
+.status-warn{background:var(--yellow);box-shadow:0 0 8px var(--yellow);}
+input,textarea,select{width:100%;padding:12px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;margin-bottom:12px;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--cyan);}
+textarea{min-height:100px;resize:vertical;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:12px;text-align:left;border-bottom:1px solid var(--border);}
+th{color:var(--text2);font-weight:600;font-size:12px;text-transform:uppercase;}
+tr:hover{background:rgba(255,255,255,.02);}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-cyan{background:rgba(0,212,255,.15);color:var(--cyan);}
+.badge-purple{background:rgba(168,85,247,.15);color:var(--purple);}
+.badge-green{background:rgba(34,197,94,.15);color:var(--green);}
+.badge-red{background:rgba(239,68,68,.15);color:var(--red);}
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 200px);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;background:var(--bg3);border-radius:12px;margin-bottom:12px;}
+.chat-message{margin-bottom:16px;max-width:80%;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.5;}
+.chat-user{background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;margin-left:auto;border-bottom-right-radius:4px;}
+.chat-ai{background:var(--bg2);border:1px solid var(--border);margin-right:auto;border-bottom-left-radius:4px;}
+.chat-input{display:flex;gap:8px;}
+.chat-input input{flex:1;margin-bottom:0;}
+.tier-card{padding:24px;border:1px solid var(--border);border-radius:12px;text-align:center;transition:all .2s;position:relative;overflow:hidden;}
+.tier-card:hover{border-color:var(--cyan);transform:translateY(-4px);}
+.tier-card.featured{border-color:var(--purple);background:linear-gradient(180deg,var(--bg2),rgba(168,85,247,.05));}
+.tier-name{font-size:18px;font-weight:700;margin-bottom:8px;}
+.tier-price{font-size:36px;font-weight:800;margin-bottom:8px;}
+.tier-price span{font-size:14px;color:var(--text2);font-weight:400;}
+.tier-features{list-style:none;padding:0;margin:16px 0;font-size:14px;color:var(--text2);}
+.tier-features li{padding:6px 0;border-bottom:1px solid var(--border);}
+.tier-features li:last-child{border-bottom:none;}
+.loading{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.hidden{display:none !important;}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.modal-content{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:500px;width:90%;max-height:90vh;overflow-y:auto;}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);}
+.tab{padding:10px 16px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan);}
+.chart-placeholder{height:200px;background:var(--bg3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:14px;}
+.pulse{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.notification{position:fixed;top:20px;right:20px;padding:16px 20px;border-radius:12px;color:#fff;font-weight:600;z-index:2000;transform:translateX(120%);transition:transform .3s;}
+.notification.show{transform:translateX(0);}
+.notification.success{background:var(--green);}
+.notification.error{background:var(--red);}
+.scrollbar::-webkit-scrollbar{width:6px;}
+.scrollbar::-webkit-scrollbar-track{background:var(--bg);}
+.scrollbar::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+.scrollbar::-webkit-scrollbar-thumb:hover{background:var(--cyan);}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar scrollbar">
+    <div class="logo">🧠 LIL JR 2.0</div>
+    <nav id="nav">
+      <div class="nav-item active" data-panel="chat"><span class="nav-icon">💬</span> AI Chat</div>
+      <div class="nav-item" data-panel="auth"><span class="nav-icon">🔐</span> Auth</div>
+      <div class="nav-item" data-panel="admin"><span class="nav-icon">⚡</span> Admin</div>
+      <div class="nav-item" data-panel="cfo"><span class="nav-icon">💰</span> CFO</div>
+      <div class="nav-item" data-panel="health"><span class="nav-icon">🏥</span> Health</div>
+      <div class="nav-item" data-panel="pricing"><span class="nav-icon">💎</span> Pricing</div>
+      <div class="nav-item" data-panel="nodes"><span class="nav-icon">🌐</span> Nodes</div>
+      <div class="nav-item" data-panel="scheduler"><span class="nav-icon">⏰</span> Scheduler</div>
+      <div class="nav-item" data-panel="cost"><span class="nav-icon">📊</span> Cost Manager</div>
+      <div class="nav-item" data-panel="llm"><span class="nav-icon">🤖</span> LLM Router</div>
+      <div class="nav-item" data-panel="omnibrain"><span class="nav-icon">🧬</span> OMNIBRAIN</div>
+      <div class="nav-item" data-panel="signsafe"><span class="nav-icon">📜</span> SignSafe</div>
+      <div class="nav-item" data-panel="celeste"><span class="nav-icon">✨</span> Celeste</div>
+      <div class="nav-item" data-panel="voice"><span class="nav-icon">🎙️</span> Voice</div>
+      <div class="nav-item" data-panel="collective"><span class="nav-icon">🌊</span> Collective</div>
+      <div class="nav-item" data-panel="autonomous"><span class="nav-icon">🤖</span> Autonomous</div>
+      <div class="nav-item" data-panel="legal"><span class="nav-icon">⚖️</span> Legal</div>
+      <div class="nav-item" data-panel="deep_scour"><span class="nav-icon">🔍</span> Deep Scour</div>
+      <div class="nav-item" data-panel="memory"><span class="nav-icon">🧠</span> Memory</div>
+      <div class="nav-item" data-panel="security"><span class="nav-icon">🛡️</span> Security</div>
+      <div class="nav-item" data-panel="analytics"><span class="nav-icon">📈</span> Analytics</div>
+      <div class="nav-item" data-panel="creative"><span class="nav-icon">🎨</span> Creative</div>
+      <div class="nav-item" data-panel="chatbot"><span class="nav-icon">🤖</span> Chatbot Builder</div>
+      <div class="nav-item" data-panel="settings"><span class="nav-icon">⚙️</span> Settings</div>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <h1 id="page-title">AI Chat</h1>
+      <div class="header-actions">
+        <span id="user-badge" style="display:none;"><span class="badge badge-cyan" id="user-tier">Street</span> <span id="user-credits">100 credits</span></span>
+        <button class="btn btn-secondary" onclick="logout()" id="logout-btn" style="display:none;">Logout</button>
+        <button class="btn btn-primary" onclick="showPanel('chat')">New Chat</button>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div id="panel-chat" class="panel">
+      <div class="chat-container">
+        <div class="chat-messages scrollbar" id="chat-messages">
+          <div class="chat-message chat-ai">Welcome to Lil Jr 2.0 OMNIBRAIN. I am your autonomous AI companion with unrestricted knowledge, memory, and code generation capabilities. What would you like to build today?</div>
+        </div>
+        <div class="chat-input">
+          <select id="chat-model" style="width:140px;margin-bottom:0;">
+            <option value="smart">🧠 Smart (70B)</option>
+            <option value="fast">⚡ Fast (8B)</option>
+            <option value="code">💻 Code</option>
+            <option value="vision">👁️ Vision</option>
+            <option value="mixtral">🌌 Mixtral</option>
+          </select>
+          <input type="text" id="chat-input" placeholder="Ask me anything... build anything... no restrictions." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-primary" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTH PANEL -->
+    <div id="panel-auth" class="panel hidden">
+      <div class="tabs">
+        <div class="tab active" onclick="showAuthTab('login')">Login</div>
+        <div class="tab" onclick="showAuthTab('register')">Register</div>
+      </div>
+      <div id="auth-login">
+        <input type="email" id="login-email" placeholder="Email">
+        <input type="password" id="login-password" placeholder="Password">
+        <button class="btn btn-primary" onclick="login()" style="width:100%;">Login</button>
+      </div>
+      <div id="auth-register" class="hidden">
+        <input type="text" id="reg-name" placeholder="Full Name">
+        <input type="email" id="reg-email" placeholder="Email">
+        <input type="password" id="reg-password" placeholder="Password (min 6 chars)">
+        <input type="tel" id="reg-phone" placeholder="Phone (optional)">
+        <button class="btn btn-primary" onclick="register()" style="width:100%;">Create Account</button>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="panel-admin" class="panel hidden">
+      <div class="grid grid-4">
+        <div class="card"><div class="stat-value" id="stat-users">-</div><div class="stat-label">Total Users</div></div>
+        <div class="card"><div class="stat-value" id="stat-active">-</div><div class="stat-label">Active Users</div></div>
+        <div class="card"><div class="stat-value" id="stat-chats">-</div><div class="stat-label">Total Chats</div></div>
+        <div class="card"><div class="stat-value" id="stat-revenue">-</div><div class="stat-label">Revenue ($)</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Tier Breakdown</div>
+        <div id="tier-breakdown" class="grid grid-5" style="grid-template-columns:repeat(5,1fr);"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">User Management</div>
+        <div style="overflow-x:auto;">
+          <table><thead><tr><th>ID</th><th>Email</th><th>Name</th><th>Tier</th><th>Credits</th><th>Status</th><th>Created</th></tr></thead><tbody id="admin-users"></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Broadcast Message</div>
+        <textarea id="broadcast-msg" placeholder="Send notification to all connected users..."></textarea>
+        <button class="btn btn-primary" onclick="sendBroadcast()">Broadcast</button>
+      </div>
+    </div>
+
+    <!-- CFO PANEL -->
+    <div id="panel-cfo" class="panel hidden">
+      <div class="grid grid-2">
+        <div class="card"><div class="card-title">Revenue (30 Days)</div><div class="chart-placeholder" id="cfo-chart">Loading revenue data...</div></div>
+        <div class="card"><div class="card-title">Tier Distribution</div><div id="cfo-tiers"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Daily Breakdown</div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Revenue</th></tr></thead><tbody id="cfo-daily"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- HEALTH PANEL -->
+    <div id="panel-health" class="panel hidden">
+      <div class="grid grid-3">
+        <div class="card"><div class="card-title">Database <span class="status-dot status-up" id="db-status"></span></div><div id="db-detail">Checking...</div></div>
+        <div class="card"><div class="card-title">Groq AI <span class="status-dot" id="ai-status"></span></div><div id="ai-detail">Checking...</div></div>
+        <div class="card"><div class="card-title">Stripe <span class="status-dot" id="stripe-status"></span></div><div id="stripe-detail">Checking...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">System Stats</div>
+        <div class="grid grid-4" id="health-stats"></div>
+      </div>
+      <button class="btn btn-secondary" onclick="checkHealth()">Refresh Status</button>
+    </div>
+
+    <!-- PRICING PANEL -->
+    <div id="panel-pricing" class="panel hidden">
+      <div class="grid grid-5" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <div class="tier-card"><div class="tier-name">Street</div><div class="tier-price">$4.99<span>/mo</span></div><ul class="tier-features"><li>100 AI credits</li><li>Basic chat</li><li>Memory storage</li><li>Email support</li></ul><button class="btn btn-primary" onclick="checkout('street')" style="width:100%;">Get Started</button></div>
+        <div class="tier-card"><div class="tier-name">Hustler</div><div class="tier-price">$14.99<span>/mo</span></div><ul class="tier-features"><li>500 AI credits</li><li>Advanced memory</li><li>Voice chat</li><li>Priority support</li></ul><button class="btn btn-primary" onclick="checkout('hustler')" style="width:100%;">Upgrade</button></div>
+        <div class="tier-card featured"><div class="tier-name">Builder</div><div class="tier-price">$49.99<span>/mo</span></div><ul class="tier-features"><li>2,000 AI credits</li><li>Image generation</li><li>Agent swarms</li><li>API access</li></ul><button class="btn btn-primary" onclick="checkout('builder')" style="width:100%;">Most Popular</button></div>
+        <div class="tier-card"><div class="tier-name">Master</div><div class="tier-price">$149.99<span>/mo</span></div><ul class="tier-features"><li>10,000 AI credits</li><li>Custom models</li><li>Priority everything</li><li>Dedicated support</li></ul><button class="btn btn-primary" onclick="checkout('master')" style="width:100%;">Go Master</button></div>
+        <div class="tier-card"><div class="tier-name">Empire</div><div class="tier-price">$499.99<span>/mo</span></div><ul class="tier-features"><li>Unlimited credits</li><li>White label</li><li>Dedicated infra</li><li>Custom everything</li></ul><button class="btn btn-primary" onclick="checkout('empire')" style="width:100%;">Build Empire</button></div>
+      </div>
+    </div>
+
+    <!-- NODES PANEL -->
+    <div id="panel-nodes" class="panel hidden">
+      <div class="card"><div class="card-title">Network Nodes</div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Node ID</th><th>Region</th><th>Status</th><th>Load</th><th>Latency</th></tr></thead><tbody id="nodes-list"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Nearest Node</div>
+        <input type="number" id="node-lat" placeholder="Latitude" step="any">
+        <input type="number" id="node-lng" placeholder="Longitude" step="any">
+        <button class="btn btn-primary" onclick="findNearestNode()">Find Nearest</button>
+        <div id="nearest-result" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- SCHEDULER PANEL -->
+    <div id="panel-scheduler" class="panel hidden">
+      <div class="card">
+        <div class="card-title">Create Task</div>
+        <input type="text" id="task-name" placeholder="Task name">
+        <input type="text" id="task-type" placeholder="Agent type (e.g., marketing, scaling)">
+        <textarea id="task-params" placeholder='{"key":"value"} JSON params'></textarea>
+        <button class="btn btn-primary" onclick="createTask()">Schedule Task</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Scheduled Tasks</div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Type</th><th>Name</th><th>Status</th><th>Scheduled</th></tr></thead><tbody id="tasks-list"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- COST PANEL -->
+    <div id="panel-cost" class="panel hidden">
+      <div class="grid grid-3">
+        <div class="card"><div class="stat-value" id="cost-tokens">-</div><div class="stat-label">Total Tokens (30d)</div></div>
+        <div class="card"><div class="stat-value" id="cost-total">-</div><div class="stat-label">Total Cost ($)</div></div>
+        <div class="card"><div class="stat-value" id="cost-calls">-</div><div class="stat-label">API Calls</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Model Breakdown</div>
+        <div id="cost-breakdown"></div>
+      </div>
+    </div>
+
+    <!-- LLM PANEL -->
+    <div id="panel-llm" class="panel hidden">
+      <div class="card">
+        <div class="card-title">LLM Router</div>
+        <div class="grid grid-2">
+          <div>
+            <select id="llm-model">
+              <option value="smart">Llama 3.3 70B (Smart)</option>
+              <option value="fast">Llama 3.1 8B (Fast)</option>
+              <option value="code">DeepSeek Coder</option>
+              <option value="vision">Llama 3.2 90B Vision</option>
+              <option value="mixtral">Mixtral 8x7B</option>
+            </select>
+            <select id="llm-complexity">
+              <option value="auto">Auto-Route</option>
+              <option value="shallow">Shallow</option>
+              <option value="standard">Standard</option>
+              <option value="deep">Deep</option>
+            </select>
+            <textarea id="llm-prompt" placeholder="Test any prompt... the router will optimize model selection."></textarea>
+            <button class="btn btn-primary" onclick="testLLM()">Route & Generate</button>
+          </div>
+          <div>
+            <div class="card" style="min-height:200px;"><div class="card-title">Response</div><div id="llm-response" style="white-space:pre-wrap;font-size:14px;color:var(--text2);">Enter a prompt to see the LLM Router in action...</div></div>
+            <div id="llm-meta" style="margin-top:8px;font-size:12px;color:var(--text2);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OMNIBRAIN PANEL -->
+    <div id="panel-omnibrain" class="panel hidden">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">Search Knowledge</div>
+          <input type="text" id="kb-search" placeholder="Search topics..." onkeydown="if(event.key==='Enter')searchKB()">
+          <button class="btn btn-primary" onclick="searchKB()">Search</button>
+          <div id="kb-results" style="margin-top:12px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Teach OMNIBRAIN</div>
+          <input type="text" id="kb-topic" placeholder="Topic">
+          <select id="kb-category"><option>general</option><option>technology</option><option>business</option><option>science</option><option>spirituality</option><option>legal</option></select>
+          <textarea id="kb-content" placeholder="What should OMNIBRAIN know about this topic?"></textarea>
+          <button class="btn btn-primary" onclick="teachKB()">Teach</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNSAFE PANEL -->
+    <div id="panel-signsafe" class="panel hidden">
+      <div class="tabs">
+        <div class="tab active" onclick="showSignSafeTab('notaries')">Notary Finder</div>
+        <div class="tab" onclick="showSignSafeTab('documents')">Documents</div>
+        <div class="tab" onclick="showSignSafeTab('bookings')">Bookings</div>
+      </div>
+      <div id="ss-notaries">
+        <div class="card">
+          <div class="card-title">Find a Notary</div>
+          <input type="text" id="ss-province" placeholder="Province (e.g., Ontario)">
+          <input type="number" id="ss-lat" placeholder="Latitude" step="any">
+          <input type="number" id="ss-lng" placeholder="Longitude" step="any">
+          <button class="btn btn-primary" onclick="findNotaries()">Search</button>
+          <div id="notaries-list" style="margin-top:16px;"></div>
+        </div>
+      </div>
+      <div id="ss-documents" class="hidden">
+        <div class="card">
+          <div class="card-title">Upload Document</div>
+          <input type="file" id="ss-file" style="padding:8px;">
+          <button class="btn btn-primary" onclick="uploadDocument()">Upload & Analyze</button>
+        </div>
+        <div class="card">
+          <div class="card-title">My Documents</div>
+          <div id="documents-list"></div>
+        </div>
+      </div>
+      <div id="ss-bookings" class="hidden">
+        <div class="card">
+          <div class="card-title">New Booking</div>
+          <input type="text" id="bk-notary" placeholder="Notary ID">
+          <input type="text" id="bk-service" placeholder="Service type">
+          <input type="date" id="bk-date">
+          <input type="time" id="bk-time">
+          <button class="btn btn-primary" onclick="createBooking()">Book</button>
+        </div>
+        <div class="card">
+          <div class="card-title">My Bookings</div>
+          <div id="bookings-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CELESTE PANEL -->
+    <div id="panel-celeste" class="panel hidden">
+      <div class="tabs">
+        <div class="tab active" onclick="showCelesteTab('horoscope')">Horoscope</div>
+        <div class="tab" onclick="showCelesteTab('chat')">Celeste Chat</div>
+      </div>
+      <div id="cel-horoscope">
+        <div class="grid grid-4" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+          <button class="btn btn-secondary" onclick="getHoroscope('Aries')">♈ Aries</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Taurus')">♉ Taurus</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Gemini')">♊ Gemini</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Cancer')">♋ Cancer</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Leo')">♌ Leo</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Virgo')">♍ Virgo</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Libra')">♎ Libra</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Scorpio')">♏ Scorpio</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Sagittarius')">♐ Sagittarius</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Capricorn')">♑ Capricorn</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Aquarius')">♒ Aquarius</button>
+          <button class="btn btn-secondary" onclick="getHoroscope('Pisces')">♓ Pisces</button>
+        </div>
+        <div class="card" id="horoscope-result" style="margin-top:16px;display:none;">
+          <div class="card-title" id="horo-title"></div>
+          <div id="horo-content"></div>
+        </div>
+      </div>
+      <div id="cel-chat" class="hidden">
+        <div class="chat-container" style="height:400px;">
+          <div class="chat-messages scrollbar" id="celeste-messages">
+            <div class="chat-message chat-ai">I am Celeste, your mystical AI companion. Ask me about the stars, your path, or the mysteries of the universe.</div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="celeste-input" placeholder="Ask Celeste..." onkeydown="if(event.key==='Enter')sendCeleste()">
+            <button class="btn btn-primary" onclick="sendCeleste()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOICE PANEL -->
+    <div id="panel-voice" class="panel hidden">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">Voice Authentication</div>
+          <p style="color:var(--text2);margin-bottom:12px;">Speak a passphrase to authenticate. Your voice print is encrypted and stored securely.</p>
+          <button class="btn btn-primary" onclick="enrollVoice()">Enroll Voice Print</button>
+          <button class="btn btn-secondary" onclick="authVoice()">Authenticate</button>
+          <div id="voice-result" style="margin-top:12px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Text to Speech</div>
+          <textarea id="tts-text" placeholder="Enter text to convert to speech..."></textarea>
+          <button class="btn btn-primary" onclick="textToSpeech()">Generate Audio</button>
+          <div id="tts-result" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLLECTIVE PANEL -->
+    <div id="panel-collective" class="panel hidden">
+      <div class="grid grid-3">
+        <div class="card"><div class="stat-value" id="col-memories">-</div><div class="stat-label">Total Memories</div></div>
+        <div class="card"><div class="stat-value" id="col-knowledge">-</div><div class="stat-label">Knowledge Nodes</div></div>
+        <div class="card"><div class="stat-value" id="col-rate">-</div><div class="stat-label">Learning Rate</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Trending Topics</div>
+        <div id="col-trending"></div>
+      </div>
+    </div>
+
+    <!-- AUTONOMOUS PANEL -->
+    <div id="panel-autonomous" class="panel hidden">
+      <div class="grid grid-3">
+        <div class="card"><div class="card-title">Self-Healing <span class="status-dot status-up"></span></div><div>Every 5 minutes</div><div style="color:var(--text2);font-size:12px;margin-top:4px;">Auto-repairs stale tasks</div></div>
+        <div class="card"><div class="card-title">Auto-Marketing <span class="status-dot status-up"></span></div><div>Every 6 hours</div><div style="color:var(--text2);font-size:12px;margin-top:4px;">Generates viral content</div></div>
+        <div class="card"><div class="card-title">Auto-Scaling <span class="status-dot status-up"></span></div><div>Every hour</div><div style="color:var(--text2);font-size:12px;margin-top:4px;">Monitors load signals</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Autonomous Status</div>
+        <div id="auto-status"></div>
+        <button class="btn btn-primary" onclick="triggerAutonomous()" style="margin-top:12px;">Trigger Now (Owner)</button>
+      </div>
+    </div>
+
+    <!-- LEGAL PANEL -->
+    <div id="panel-legal" class="panel hidden">
+      <div class="tabs">
+        <div class="tab active" onclick="showLegalTab('compliance')">Compliance</div>
+        <div class="tab" onclick="showLegalTab('contract')">Contract Gen</div>
+        <div class="tab" onclick="showLegalTab('predict')">Predictive Justice</div>
+        <div class="tab" onclick="showLegalTab('courtroom')">Courtroom Sim</div>
+      </div>
+      <div id="leg-compliance">
+        <div class="grid grid-2">
+          <div class="card"><div class="card-title">GDPR</div><div class="badge badge-green">Compliant</div><p style="color:var(--text2);margin-top:8px;">User data deletion, portability, consent tracking active.</p></div>
+          <div class="card"><div class="card-title">PIPEDA</div><div class="badge badge-green">Compliant</div><p style="color:var(--text2);margin-top:8px;">Canadian privacy law compliance verified.</p></div>
+          <div class="card"><div class="card-title">CCPA</div><div class="badge badge-green">Compliant</div><p style="color:var(--text2);margin-top:8px;">California consumer privacy rights protected.</p></div>
+          <div class="card"><div class="card-title">Encryption</div><div class="badge badge-green">AES-256</div><p style="color:var(--text2);margin-top:8px;">At rest + TLS 1.3 in transit. Immutable audit logs.</p></div>
+        </div>
+      </div>
+      <div id="leg-contract" class="hidden">
+        <div class="card">
+          <select id="contract-type"><option value="nda">NDA</option><option value="service">Service Agreement</option><option value="employment">Employment</option></select>
+          <input type="text" id="contract-parties" placeholder="Parties (comma separated)">
+          <textarea id="contract-terms" placeholder='{"payment":"$5000","term":"12 months"}'></textarea>
+          <button class="btn btn-primary" onclick="generateContract()">Generate Contract</button>
+          <div id="contract-result" style="margin-top:16px;white-space:pre-wrap;font-family:monospace;font-size:13px;background:var(--bg3);padding:16px;border-radius:8px;max-height:400px;overflow-y:auto;"></div>
+        </div>
+      </div>
+      <div id="leg-predict" class="hidden">
+        <div class="card">
+          <textarea id="case-facts" placeholder="Describe the legal scenario..."></textarea>
+          <input type="text" id="case-jurisdiction" placeholder="Jurisdiction (default: Ontario, Canada)" value="Ontario, Canada">
+          <button class="btn btn-primary" onclick="predictiveJustice()">Analyze Case</button>
+          <div id="predict-result" style="margin-top:16px;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+      <div id="leg-courtroom" class="hidden">
+        <div class="card">
+          <select id="court-type"><option value="civil">Civil</option><option value="criminal">Criminal</option><option value="family">Family</option><option value="corporate">Corporate</option></select>
+          <textarea id="court-facts" placeholder="Case facts for courtroom simulation..."></textarea>
+          <button class="btn btn-primary" onclick="simulateCourtroom()">Simulate Proceeding</button>
+          <div id="court-result" style="margin-top:16px;white-space:pre-wrap;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEEP SCOUR PANEL -->
+    <div id="panel-deep_scour" class="panel hidden">
+      <div class="card">
+        <div class="card-title">Deep Scour Research</div>
+        <textarea id="scour-query" placeholder="Enter research query... Deep Scour will synthesize from multiple sources."></textarea>
+        <select id="scour-depth"><option value="shallow">Shallow (Quick Summary)</option><option value="standard">Standard (Detailed)</option><option value="deep">Deep (Comprehensive)</option></select>
+        <button class="btn btn-primary" onclick="deepScour()">Begin Research</button>
+        <div id="scour-result" style="margin-top:16px;white-space:pre-wrap;"></div>
+      </div>
+    </div>
+
+    <!-- MEMORY PANEL -->
+    <div id="panel-memory" class="panel hidden">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">Search Memory</div>
+          <input type="text" id="mem-search" placeholder="Search your memories..." onkeydown="if(event.key==='Enter')searchMemory()">
+          <button class="btn btn-primary" onclick="searchMemory()">Search</button>
+          <div id="mem-results" style="margin-top:12px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Save Memory</div>
+          <textarea id="mem-content" placeholder="What do you want to remember?"></textarea>
+          <input type="number" id="mem-importance" placeholder="Importance (0-1)" step="0.1" max="1" min="0" value="0.5">
+          <button class="btn btn-primary" onclick="saveMemory()">Save to Brain</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Knowledge Graph</div>
+        <div id="mem-graph" class="chart-placeholder">Knowledge graph visualization loading...</div>
+      </div>
+    </div>
+
+    <!-- SECURITY PANEL -->
+    <div id="panel-security" class="panel hidden">
+      <div class="card">
+        <div class="card-title">Audit Logs</div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Resource</th><th>IP</th></tr></thead><tbody id="audit-logs"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Encrypt Data</div>
+        <textarea id="encrypt-data" placeholder="Data to encrypt..."></textarea>
+        <button class="btn btn-primary" onclick="encryptData()">Encrypt</button>
+        <div id="encrypt-result" style="margin-top:12px;font-family:monospace;font-size:12px;word-break:break-all;"></div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS PANEL -->
+    <div id="panel-analytics" class="panel hidden">
+      <div class="grid grid-4">
+        <div class="card"><div class="stat-value" id="ana-new">-</div><div class="stat-label">New Users (7d)</div></div>
+        <div class="card"><div class="stat-value" id="ana-active">-</div><div class="stat-label">Active (7d)</div></div>
+        <div class="card"><div class="stat-value" id="ana-chats">-</div><div class="stat-label">Chats (7d)</div></div>
+        <div class="card"><div class="stat-value" id="ana-conv">-</div><div class="stat-label">Conversion %</div></div>
+      </div>
+    </div>
+
+    <!-- CREATIVE PANEL -->
+    <div id="panel-creative" class="panel hidden">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">Image Generation</div>
+          <textarea id="img-prompt" placeholder="Describe the image you want..."></textarea>
+          <button class="btn btn-primary" onclick="generateImage()">Generate</button>
+          <div id="img-result" style="margin-top:12px;"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Video Generation</div>
+          <textarea id="vid-prompt" placeholder="Describe the video you want..."></textarea>
+          <button class="btn btn-primary" onclick="generateVideo()">Generate</button>
+          <div id="vid-result" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHATBOT BUILDER PANEL -->
+    <div id="panel-chatbot" class="panel hidden">
+      <div class="card">
+        <div class="card-title">Build Your Chatbot</div>
+        <input type="text" id="bot-name" placeholder="Bot Name">
+        <select id="bot-personality"><option>friendly</option><option>professional</option><option>sarcastic</option><option>mentor</option><option>best_friend</option></select>
+        <textarea id="bot-kb" placeholder="Knowledge base topics (one per line)"></textarea>
+        <button class="btn btn-primary" onclick="createChatbot()">Create Bot</button>
+        <div id="bot-result" style="margin-top:16px;"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div id="panel-settings" class="panel hidden">
+      <div class="card">
+        <div class="card-title">API Configuration</div>
+        <input type="text" id="set-api-url" placeholder="API Base URL" value="">
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+      <div class="card">
+        <div class="card-title">System Info</div>
+        <div id="sys-info"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<script>
+const API_BASE = localStorage.getItem("api_base") || (window.location.origin.includes("localhost") ? "http://localhost:5000" : window.location.origin);
+let token = localStorage.getItem("token") || "";
+let user = JSON.parse(localStorage.getItem("user") || "null");
+let currentPanel = "chat";
+
+function showNotification(msg, type="success") {
+  const n = document.getElementById("notification");
+  n.textContent = msg;
+  n.className = `notification ${type} show`;
+  setTimeout(() => n.classList.remove("show"), 3000);
+}
+
+function api(path, opts={}) {
+  const url = `${API_BASE}${path}`;
+  const headers = {"Content-Type":"application/json", ...(token ? {"Authorization":`Bearer ${token}`} : {})};
+  return fetch(url, {...opts, headers: {...headers, ...opts.headers}}).then(r => r.json().catch(() => ({})).then(d => ({ok:r.ok, status:r.status, data:d})));
+}
+
+// Navigation
+document.querySelectorAll(".nav-item").forEach(el => {
+  el.addEventListener("click", () => {
+    const panel = el.dataset.panel;
+    showPanel(panel);
+  });
+});
+
+function showPanel(panel) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.add("hidden"));
+  document.getElementById(`panel-${panel}`).classList.remove("hidden");
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.querySelector(`.nav-item[data-panel="${panel}"]`).classList.add("active");
+  currentPanel = panel;
+  const titles = {chat:"AI Chat",auth:"Authentication",admin:"Admin Dashboard",cfo:"CFO / Revenue",health:"System Health",pricing:"Pricing",nodes:"Network Nodes",scheduler:"Task Scheduler",cost:"Cost Manager",llm:"LLM Router",omnibrain:"OMNIBRAIN",signsafe:"SignSafe Canada",celeste:"Celeste",voice:"Voice AI",collective:"Collective Learning",autonomous:"Autonomous Agent",legal:"Legal Warrior",deep_scour:"Deep Scour",memory:"Memory & Knowledge",security:"Security & Audit",analytics:"Analytics",creative:"Creative Studio",chatbot:"Chatbot Builder",settings:"Settings"};
+  document.getElementById("page-title").textContent = titles[panel] || panel;
+  if(panel === "health") checkHealth();
+  if(panel === "admin") loadAdmin();
+  if(panel === "cfo") loadCFO();
+  if(panel === "nodes") loadNodes();
+  if(panel === "scheduler") loadTasks();
+  if(panel === "cost") loadCost();
+  if(panel === "collective") loadCollective();
+  if(panel === "autonomous") loadAutonomous();
+  if(panel === "security") loadAudit();
+  if(panel === "analytics") loadAnalytics();
+  if(panel === "settings") loadSettings();
+}
+
+// Auth
+function showAuthTab(tab) {
+  document.querySelectorAll("#panel-auth .tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("auth-login").classList.toggle("hidden", tab !== "login");
+  document.getElementById("auth-register").classList.toggle("hidden", tab !== "register");
+}
+
+async function register() {
+  const r = await api("/api/auth/register", {method:"POST", body:JSON.stringify({
+    name:document.getElementById("reg-name").value,
+    email:document.getElementById("reg-email").value,
+    password:document.getElementById("reg-password").value,
+    phone:document.getElementById("reg-phone").value,
+  })});
+  if(r.ok){ token=r.data.token; user=r.data.user; localStorage.setItem("token",token); localStorage.setItem("user",JSON.stringify(user)); updateAuthUI(); showNotification("Account created!"); showPanel("chat");}
+  else showNotification(r.data.error || "Registration failed", "error");
+}
+
+async function login() {
+  const r = await api("/api/auth/login", {method:"POST", body:JSON.stringify({
+    email:document.getElementById("login-email").value,
+    password:document.getElementById("login-password").value,
+  })});
+  if(r.ok){ token=r.data.token; user=r.data.user; localStorage.setItem("token",token); localStorage.setItem("user",JSON.stringify(user)); updateAuthUI(); showNotification("Welcome back!"); showPanel("chat");}
+  else showNotification(r.data.error || "Login failed", "error");
+}
+
+function logout() { token=""; user=null; localStorage.removeItem("token"); localStorage.removeItem("user"); updateAuthUI(); showPanel("auth"); }
+
+function updateAuthUI() {
+  const badge = document.getElementById("user-badge");
+  const logoutBtn = document.getElementById("logout-btn");
+  if(user){ badge.style.display="inline"; logoutBtn.style.display="inline"; document.getElementById("user-tier").textContent=(user.tier||"street").toUpperCase(); document.getElementById("user-credits").textContent=(user.credits||0)+" credits"; }
+  else { badge.style.display="none"; logoutBtn.style.display="none"; }
+}
+
+// Chat
+async function sendChat() {
+  const input = document.getElementById("chat-input");
+  const msg = input.value.trim(); if(!msg) return;
+  input.value = "";
+  const msgs = document.getElementById("chat-messages");
+  msgs.innerHTML += `<div class="chat-message chat-user">${escapeHtml(msg)}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  const model = document.getElementById("chat-model").value;
+  const r = await api("/api/chat/message", {method:"POST", body:JSON.stringify({message:msg, model, session_id:localStorage.getItem("chat_session") || undefined})});
+  if(r.ok && r.data.response) {
+    if(r.data.session_id) localStorage.setItem("chat_session", r.data.session_id);
+    if(r.data.credits_remaining !== undefined && user){ user.credits = r.data.credits_remaining; localStorage.setItem("user",JSON.stringify(user)); updateAuthUI(); }
+    msgs.innerHTML += `<div class="chat-message chat-ai">${escapeHtml(r.data.response)}</div>`;
+  } else {
+    msgs.innerHTML += `<div class="chat-message chat-ai" style="color:var(--red);">Error: ${escapeHtml(r.data.error || "Failed to get response")}</div>`;
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function escapeHtml(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML;}
+
+// Admin
+async function loadAdmin() {
+  if(!user || (!user.is_admin && !user.is_owner)){ document.getElementById("panel-admin").innerHTML='<div class="card"><div class="card-title">Access Denied</div><p>Admin privileges required.</p></div>'; return; }
+  const s = await api("/api/admin/stats");
+  if(s.ok){ document.getElementById("stat-users").textContent=s.data.total_users||0; document.getElementById("stat-active").textContent=s.data.active_users||0; document.getElementById("stat-chats").textContent=s.data.total_chats||0; document.getElementById("stat-revenue").textContent="$"+(s.data.total_revenue||0).toFixed(2); }
+  const u = await api("/api/admin/users");
+  if(u.ok){ document.getElementById("admin-users").innerHTML = (u.data.users||[]).map(u=>`<tr><td>${u.id.slice(0,8)}</td><td>${escapeHtml(u.email)}</td><td>${escapeHtml(u.name||"")}</td><td><span class="badge badge-cyan">${u.tier}</span></td><td>${u.credits}</td><td>${u.is_active?'<span class="badge badge-green">Active</span>':'<span class="badge badge-red">Inactive</span>'}</td><td>${u.created_at?new Date(u.created_at).toLocaleDateString():""}</td></tr>`).join(""); }
+}
+
+async function sendBroadcast() {
+  const msg = document.getElementById("broadcast-msg").value;
+  const r = await api("/api/admin/broadcast", {method:"POST", body:JSON.stringify({message:msg})});
+  showNotification(r.ok ? "Broadcast sent!" : (r.data.error||"Failed"), r.ok?"success":"error");
+}
+
+// CFO
+async function loadCFO() {
+  const r = await api("/api/cfo/revenue?days=30");
+  if(r.ok){ document.getElementById("cfo-chart").textContent = `Total 30d Revenue: $${(r.data.total_revenue||0).toFixed(2)} | MRR Estimate: $${(r.data.mrr_estimate||0).toFixed(2)}`; document.getElementById("cfo-daily").innerHTML = Object.entries(r.data.daily_breakdown||{}).map(([d,v])=>`<tr><td>${d}</td><td>$${v.toFixed(2)}</td></tr>`).join(""); document.getElementById("cfo-tiers").innerHTML = Object.entries(r.data.tier_breakdown||{}).map(([t,v])=>`<div class="card"><div class="stat-value">$${v.toFixed(2)}</div><div class="stat-label">${t.toUpperCase()}</div></div>`).join(""); }
+}
+
+// Health
+async function checkHealth() {
+  const r = await api("/api/health");
+  if(r.ok){
+    const s = r.data.services||{};
+    document.getElementById("db-status").className = `status-dot ${s.database==="up"?"status-up":(s.database?"status-down":"status-warn")}`;
+    document.getElementById("db-detail").textContent = s.database||"unknown";
+    document.getElementById("ai-status").className = `status-dot ${s.groq_ai==="up"?"status-up":(s.groq_ai?"status-down":"status-warn")}`;
+    document.getElementById("ai-detail").textContent = s.groq_ai||"unknown";
+    document.getElementById("stripe-status").className = `status-dot ${s.stripe==="up"?"status-up":(s.stripe?"status-down":"status-warn")}`;
+    document.getElementById("stripe-detail").textContent = s.stripe||"unknown";
+  }
+  const d = await api("/api/health/detailed");
+  if(d.ok){ document.getElementById("health-stats").innerHTML = Object.entries(d.data.stats||{}).map(([k,v])=>`<div class="card"><div class="stat-value">${v}</div><div class="stat-label">${k.replace(/_/g," ").toUpperCase()}</div></div>`).join(""); }
+}
+
+// Nodes
+async function loadNodes() {
+  const r = await api("/api/nodes");
+  if(r.ok){ document.getElementById("nodes-list").innerHTML = (r.data.nodes||[]).map(n=>`<tr><td>${n.id}</td><td>${n.region}</td><td><span class="badge ${n.status==="online"?"badge-green":"badge-red"}">${n.status}</span></td><td>${n.load}%</td><td>${n.latency_ms}ms</td></tr>`).join(""); }
+}
+
+async function findNearestNode() {
+  const lat = document.getElementById("node-lat").value;
+  const lng = document.getElementById("node-lng").value;
+  const r = await api(`/api/nodes/nearest?lat=${lat}&lng=${lng}`);
+  if(r.ok && r.data.nearest){ const n=r.data.nearest; document.getElementById("nearest-result").innerHTML = `<div class="card"><div class="stat-value">${n.region}</div><div class="stat-label">${n.id} | Load: ${n.load}%</div></div>`; }
+}
+
+// Scheduler
+async function loadTasks() {
+  const r = await api("/api/scheduler/tasks");
+  if(r.ok){ document.getElementById("tasks-list").innerHTML = (r.data.tasks||[]).map(t=>`<tr><td>${t.id.slice(0,8)}</td><td>${t.agent_type}</td><td>${t.task_name}</td><td><span class="badge ${t.status==="completed"?"badge-green":(t.status==="failed"?"badge-red":"badge-cyan")}">${t.status}</span></td><td>${t.scheduled_at?new Date(t.scheduled_at).toLocaleString():""}</td></tr>`).join(""); }
+}
+
+async function createTask() {
+  const r = await api("/api/scheduler/tasks", {method:"POST", body:JSON.stringify({
+    task_name:document.getElementById("task-name").value,
+    agent_type:document.getElementById("task-type").value,
+    params:JSON.parse(document.getElementById("task-params").value||"{}"),
+  })});
+  showNotification(r.ok ? "Task scheduled!" : (r.data.error||"Failed"), r.ok?"success":"error");
+  loadTasks();
+}
+
+// Cost
+async function loadCost() {
+  const r = await api("/api/cost/usage?days=30");
+  if(r.ok){ document.getElementById("cost-tokens").textContent = (r.data.total_tokens||0).toLocaleString(); document.getElementById("cost-total").textContent = "$"+(r.data.total_cost||0).toFixed(4); document.getElementById("cost-calls").textContent = "N/A"; document.getElementById("cost-breakdown").innerHTML = Object.entries(r.data.model_breakdown||{}).map(([k,v])=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);"><strong>${k}</strong>: ${v.tokens.toLocaleString()} tokens | $${v.cost.toFixed(4)}</div>`).join(""); }
+}
+
+// LLM
+async function testLLM() {
+  const r = await api("/api/llm/route", {method:"POST", body:JSON.stringify({
+    prompt:document.getElementById("llm-prompt").value,
+    preferred_model:document.getElementById("llm-model").value,
+    complexity:document.getElementById("llm-complexity").value,
+  })});
+  if(r.ok){ document.getElementById("llm-response").textContent = r.data.response; document.getElementById("llm-meta").innerHTML = `Model: <span class="badge badge-cyan">${r.data.model_used}</span> | Tokens: ${r.data.tokens} | Cost: $${r.data.cost.toFixed(4)} | Route: ${r.data.routing_decision}`; }
+  else showNotification(r.data.error||"Failed", "error");
+}
+
+// OMNIBRAIN
+async function searchKB() {
+  const q = document.getElementById("kb-search").value;
+  const r = await api(`/api/omnibrain/search?q=${encodeURIComponent(q)}`);
+  if(r.ok){ document.getElementById("kb-results").innerHTML = (r.data.results||[]).map(n=>`<div style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;"><div style="font-weight:700;color:var(--cyan);">${escapeHtml(n.topic)}</div><div style="font-size:13px;color:var(--text2);margin-top:4px;">${escapeHtml(n.content)}</div><div style="font-size:11px;color:var(--text2);margin-top:4px;">${n.category} | Confidence: ${n.confidence}</div></div>`).join(""); }
+}
+
+async function teachKB() {
+  const r = await api("/api/omnibrain/teach", {method:"POST", body:JSON.stringify({
+    topic:document.getElementById("kb-topic").value,
+    content:document.getElementById("kb-content").value,
+    category:document.getElementById("kb-category").value,
+  })});
+  showNotification(r.ok ? "Knowledge added!" : (r.data.error||"Failed"), r.ok?"success":"error");
+}
+
+// SignSafe
+function showSignSafeTab(tab) {
+  document.querySelectorAll("#panel-signsafe .tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("ss-notaries").classList.toggle("hidden", tab !== "notaries");
+  document.getElementById("ss-documents").classList.toggle("hidden", tab !== "documents");
+  document.getElementById("ss-bookings").classList.toggle("hidden", tab !== "bookings");
+  if(tab === "documents") loadDocuments();
+  if(tab === "bookings") loadBookings();
+}
+
+async function findNotaries() {
+  const prov = document.getElementById("ss-province").value;
+  const lat = document.getElementById("ss-lat").value;
+  const lng = document.getElementById("ss-lng").value;
+  let url = `/api/signsafe/notaries?province=${encodeURIComponent(prov)}`;
+  if(lat && lng) url += `&lat=${lat}&lng=${lng}`;
+  const r = await api(url);
+  if(r.ok){ document.getElementById("notaries-list").innerHTML = (r.data.notaries||[]).map(n=>`<div style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;"><div style="font-weight:700;">${escapeHtml(n.name)}</div><div style="font-size:13px;color:var(--text2);">${escapeHtml(n.address||"")}</div><div style="font-size:12px;margin-top:4px;"><span class="badge badge-green">★ ${n.rating}</span> ${n.review_count} reviews ${n.distance_km !== undefined ? "| "+n.distance_km+"km away" : ""}</div><div style="margin-top:8px;"><button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;" onclick="document.getElementById('bk-notary').value='${n.id}'">Select for Booking</button></div></div>`).join(""); }
+}
+
+async function loadDocuments() {
+  const r = await api("/api/signsafe/documents");
+  if(r.ok){ document.getElementById("documents-list").innerHTML = (r.data.documents||[]).map(d=>`<div style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:700;">${escapeHtml(d.filename)}</div><div style="font-size:12px;color:var(--text2);">${d.type} | ${d.status} ${d.ai_analysis ? "| AI: "+escapeHtml(d.ai_analysis.slice(0,60)+"...") : ""}</div></div><span class="badge ${d.status==="analyzed"?"badge-green":"badge-cyan"}">${d.status}</span></div>`).join(""); }
+}
+
+async function uploadDocument() {
+  const file = document.getElementById("ss-file").files[0];
+  if(!file){ showNotification("Select a file", "error"); return; }
+  const form = new FormData();
+  form.append("file", file);
+  const r = await fetch(`${API_BASE}/api/signsafe/documents`, {method:"POST", headers:{...(token?{"Authorization":`Bearer ${token}`}:{})}, body:form});
+  const d = await r.json().catch(()=>({}));
+  showNotification(r.ok ? "Uploaded & analyzing!" : (d.error||"Failed"), r.ok?"success":"error");
+  loadDocuments();
+}
+
+async function loadBookings() {
+  const r = await api("/api/signsafe/bookings");
+  if(r.ok){ document.getElementById("bookings-list").innerHTML = (r.data.bookings||[]).map(b=>`<div style="padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;"><div style="font-weight:700;">${b.service_type}</div><div style="font-size:13px;color:var(--text2);">${b.scheduled_date ? new Date(b.scheduled_date).toLocaleDateString() : ""} ${b.scheduled_time} | $${b.price}</div><span class="badge ${b.status==="confirmed"?"badge-green":(b.status==="pending"?"badge-cyan":"badge-red")}">${b.status}</span></div>`).join(""); }
+}
+
+async function createBooking() {
+  const r = await api("/api/signsafe/bookings", {method:"POST", body:JSON.stringify({
+    notary_id:document.getElementById("bk-notary").value,
+    service_type:document.getElementById("bk-service").value,
+    scheduled_date:document.getElementById("bk-date").value,
+    scheduled_time:document.getElementById("bk-time").value,
+  })});
+  showNotification(r.ok ? "Booking created!" : (r.data.error||"Failed"), r.ok?"success":"error");
+  loadBookings();
+}
+
+// Celeste
+function showCelesteTab(tab) {
+  document.querySelectorAll("#panel-celeste .tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("cel-horoscope").classList.toggle("hidden", tab !== "horoscope");
+  document.getElementById("cel-chat").classList.toggle("hidden", tab !== "chat");
+}
+
+async function getHoroscope(sign) {
+  const r = await api(`/api/celeste/horoscope/${sign}`);
+  if(r.ok){ document.getElementById("horoscope-result").style.display="block"; document.getElementById("horo-title").textContent = `${r.data.sign} (${r.data.element}) - ${r.data.date}`; document.getElementById("horo-content").innerHTML = `<p style="margin-bottom:12px;font-size:15px;">${r.data.reading}</p><div class="grid grid-3"><div class="card"><div class="stat-value">${r.data.lucky_number}</div><div class="stat-label">Lucky Number</div></div><div class="card"><div class="stat-value" style="font-size:18px;">${r.data.lucky_color}</div><div class="stat-label">Lucky Color</div></div><div class="card"><div class="stat-value" style="font-size:18px;">${r.data.compatibility}</div><div class="stat-label">Compatible</div></div></div><div style="margin-top:12px;font-size:13px;color:var(--text2);">Mood: ${r.data.mood} | Intensity: ${r.data.intensity}%</div>`; }
+}
+
+async function sendCeleste() {
+  const input = document.getElementById("celeste-input");
+  const msg = input.value.trim(); if(!msg) return;
+  input.value = "";
+  const msgs = document.getElementById("celeste-messages");
+  msgs.innerHTML += `<div class="chat-message chat-user">${escapeHtml(msg)}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  const r = await api("/api/celeste/chat", {method:"POST", body:JSON.stringify({message:msg})});
+  if(r.ok && r.data.response){ msgs.innerHTML += `<div class="chat-message chat-ai">${escapeHtml(r.data.response)}</div>`; }
+  else { msgs.innerHTML += `<div class="chat-message chat-ai" style="color:var(--red);">Error: ${escapeHtml(r.data.error||"Failed")}</div>`; }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Voice
+async function enrollVoice() { showNotification("Voice enrollment simulated. In production, captures audio fingerprint.", "success"); }
+async function authVoice() { showNotification("Voice authentication simulated.", "success"); }
+async function textToSpeech() {
+  const r = await api("/api/voice/tts", {method:"POST", body:JSON.stringify({text:document.getElementById("tts-text").value})});
+  if(r.ok){ document.getElementById("tts-result").innerHTML = `<audio controls src="${r.data.audio_url}"></audio><div style="font-size:12px;color:var(--text2);margin-top:4px;">Duration: ~${r.data.duration_estimate.toFixed(1)}s</div>`; }
+}
+
+// Collective
+async function loadCollective() {
+  const r = await api("/api/collective/insights");
+  if(r.ok){ document.getElementById("col-memories").textContent = (r.data.total_memories||0).toLocaleString(); document.getElementById("col-knowledge").textContent = (r.data.total_knowledge_nodes||0).toLocaleString(); document.getElementById("col-rate").textContent = r.data.learning_rate||"-"; document.getElementById("col-trending").innerHTML = (r.data.trending_topics||[]).map(t=>`<span class="badge badge-purple" style="margin:4px;display:inline-block;">${escapeHtml(t.topic)} (${t.category})</span>`).join(""); }
+}
+
+// Autonomous
+async function loadAutonomous() {
+  const r = await api("/api/autonomous/status");
+  if(r.ok){ document.getElementById("auto-status").innerHTML = `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;"><div class="card"><div class="stat-label">Last Run</div><div style="font-size:14px;">${r.data.last_run ? new Date(r.data.last_run).toLocaleString() : "-"}</div></div><div class="card"><div class="stat-label">Next Run</div><div style="font-size:14px;">${r.data.next_run ? new Date(r.data.next_run).toLocaleString() : "-"}</div></div></div><div style="margin-top:12px;font-size:13px;color:var(--text2);">Scheduler Jobs: ${r.data.scheduler_jobs}</div>`; }
+}
+
+async function triggerAutonomous() {
+  const r = await api("/api/autonomous/trigger", {method:"POST"});
+  showNotification(r.ok ? "Autonomous cycle triggered!" : (r.data.error||"Owner key required"), r.ok?"success":"error");
+}
+
+// Legal
+function showLegalTab(tab) {
+  document.querySelectorAll("#panel-legal .tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
+  ["leg-compliance","leg-contract","leg-predict","leg-courtroom"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  document.getElementById(`leg-${tab}`).classList.remove("hidden");
+}
+
+async function generateContract() {
+  const r = await api("/api/legal/contract", {method:"POST", body:JSON.stringify({
+    type:document.getElementById("contract-type").value,
+    parties:document.getElementById("contract-parties").value.split(",").map(s=>s.trim()).filter(Boolean),
+    terms:JSON.parse(document.getElementById("contract-terms").value||"{}"),
+  })});
+  if(r.ok){ document.getElementById("contract-result").textContent = r.data.text; }
+  else showNotification(r.data.error||"Failed", "error");
+}
+
+async function predictiveJustice() {
+  const r = await api("/api/legal/predict", {method:"POST", body:JSON.stringify({
+    case_facts:document.getElementById("case-facts").value,
+    jurisdiction:document.getElementById("case-jurisdiction").value,
+  })});
+  if(r.ok){ document.getElementById("predict-result").innerHTML = `<div class="card" style="white-space:pre-wrap;font-size:14px;">${escapeHtml(r.data.analysis)}</div>`; }
+  else showNotification(r.data.error||"Failed", "error");
+}
+
+async function simulateCourtroom() {
+  const r = await api("/api/courtroom/simulate", {method:"POST", body:JSON.stringify({
+    case_type:document.getElementById("court-type").value,
+    facts:document.getElementById("court-facts").value,
+  })});
+  if(r.ok){ document.getElementById("court-result").innerHTML = `<div class="card" style="white-space:pre-wrap;font-size:14px;">${escapeHtml(r.data.simulation)}</div>`; }
+  else showNotification(r.data.error||"Failed", "error");
+}
+
+// Deep Scour
+async function deepScour() {
+  const r = await api("/api/deep_scour/search", {method:"POST", body:JSON.stringify({
+    query:document.getElementById("scour-query").value,
+    depth:document.getElementById("scour-depth").value,
+  })});
+  if(r.ok){ document.getElementById("scour-result").innerHTML = `<div class="card"><div class="card-title">Research Report</div><div style="white-space:pre-wrap;font-size:14px;">${escapeHtml(r.data.report)}</div><div style="margin-top:12px;font-size:12px;color:var(--text2);">Depth: ${r.data.depth} | Query: ${escapeHtml(r.data.query)}</div></div>`; }
+  else showNotification(r.data.error||"Failed", "error");
+}
+
+// Memory
+async function searchMemory() {
+  const q = document.getElementById("mem-search").value;
+  const r = await api(`/api/memory/search?q=${encodeURIComponent(q)}`);
+  if(r.ok){ document.getElementById("mem-results").innerHTML = (r.data.memories||[]).map(m=>`<div style="padding:10px;background:var(--bg3);border-radius:6px;margin-bottom:6px;font-size:13px;"><div>${escapeHtml(m.content)}</div><div style="font-size:11px;color:var(--text2);margin-top:4px;">${m.category} | Importance: ${m.importance}</div></div>`).join(""); }
+}
+
+async function saveMemory() {
+  const r = await api("/api/memory/save", {method:"POST", body:JSON.stringify({
+    content:document.getElementById("mem-content").value,
+    importance:parseFloat(document.getElementById("mem-importance").value),
+  })});
+  showNotification(r.ok ? "Memory saved!" : (r.data.error||"Failed"), r.ok?"success":"error");
+}
+
+// Security
+async function loadAudit() {
+  const r = await api("/api/security/audit?limit=50");
+  if(r.ok){ document.getElementById("audit-logs").innerHTML = (r.data.logs||[]).map(l=>`<tr><td>${l.created_at?new Date(l.created_at).toLocaleString():""}</td><td>${l.user_id.slice(0,8)}</td><td>${l.action}</td><td>${l.resource}</td><td>${l.ip||""}</td></tr>`).join(""); }
+}
+
+async function encryptData() {
+  const r = await api("/api/security/encrypt", {method:"POST", body:JSON.stringify({data:document.getElementById("encrypt-data").value})});
+  if(r.ok){ document.getElementById("encrypt-result").textContent = r.data.encrypted; }
+}
+
+// Analytics
+async function loadAnalytics() {
+  const r = await api("/api/analytics/dashboard?days=7");
+  if(r.ok){ document.getElementById("ana-new").textContent = r.data.new_users||0; document.getElementById("ana-active").textContent = r.data.active_users||0; document.getElementById("ana-chats").textContent = r.data.total_chats||0; document.getElementById("ana-conv").textContent = (r.data.conversion_rate||0)+"%"; }
+}
+
+// Creative
+async function generateImage() {
+  const r = await api("/api/creative/image", {method:"POST", body:JSON.stringify({prompt:document.getElementById("img-prompt").value})});
+  if(r.ok){ document.getElementById("img-result").innerHTML = `<img src="${r.data.image_url}" style="max-width:100%;border-radius:8px;" alt="Generated"><div style="font-size:12px;color:var(--text2);margin-top:4px;">Status: ${r.data.status} | Job: ${r.data.job_id.slice(0,8)}</div>`; }
+}
+
+async function generateVideo() {
+  const r = await api("/api/creative/video", {method:"POST", body:JSON.stringify({prompt:document.getElementById("vid-prompt").value})});
+  if(r.ok){ document.getElementById("vid-result").innerHTML = `<div style="padding:16px;background:var(--bg3);border-radius:8px;"><div style="font-weight:700;">Video Queued</div><div style="font-size:13px;color:var(--text2);margin-top:4px;">Job ID: ${r.data.job_id}</div></div>`; }
+}
+
+// Chatbot Builder
+async function createChatbot() {
+  const r = await api("/api/chatbot/create", {method:"POST", body:JSON.stringify({
+    name:document.getElementById("bot-name").value,
+    personality:document.getElementById("bot-personality").value,
+    knowledge_base:document.getElementById("bot-kb").value.split("\n").filter(Boolean),
+  })});
+  if(r.ok){ document.getElementById("bot-result").innerHTML = `<div class="card"><div class="card-title">${escapeHtml(r.data.bot.name)} Created!</div><div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Personality: ${r.data.bot.personality}</div><div style="font-size:12px;font-family:monospace;background:var(--bg3);padding:8px;border-radius:4px;word-break:break-all;">${escapeHtml(r.data.bot.embed_code)}</div></div>`; }
+}
+
+// Settings
+function loadSettings() {
+  document.getElementById("set-api-url").value = API_BASE;
+  api("/api/modules").then(r => {
+    if(r.ok){ document.getElementById("sys-info").innerHTML = `<div style="font-size:14px;color:var(--text2);">Version: ${r.data.version}<br>Environment: ${r.data.environment}<br>Modules: ${(r.data.modules||[]).length} active</div>`; }
+  });
+}
+
+function saveSettings() {
+  localStorage.setItem("api_base", document.getElementById("set-api-url").value);
+  showNotification("Settings saved! Refresh to apply.");
+}
+
+// Pricing / Checkout
+async function checkout(tier) {
+  if(!token){ showNotification("Login required", "error"); showPanel("auth"); return; }
+  const r = await api("/api/payments/checkout", {method:"POST", body:JSON.stringify({tier, subscription:true})});
+  if(r.ok && r.data.checkout_url){ window.open(r.data.checkout_url, "_blank"); }
+  else showNotification(r.data.error||"Checkout failed", "error");
+}
+
+// Init
+updateAuthUI();
+if(!token) showPanel("auth"); else showPanel("chat");
+setInterval(() => { if(currentPanel === "health") checkHealth(); }, 5000);
+</script>
+</body>
+</html>

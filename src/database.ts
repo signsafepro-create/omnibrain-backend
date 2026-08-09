@@ -460,6 +460,13 @@ class Database {
     return this.data.users.find((u) => u.apiKey === apiKey);
   }
 
+  public async verifyUser(email: string, passwordPlain: string): Promise<User | undefined> {
+    const user = this.findUserByEmail(email);
+    if (!user) return undefined;
+    const match = await bcrypt.compare(passwordPlain, user.passwordHash);
+    return match ? user : undefined;
+  }
+
   public createUser(email: string, passwordHash: string, tier: "free" | "pro" | "premium" | "enterprise" | "institution" = "free"): User {
     const user: User = {
       id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -648,6 +655,10 @@ class Database {
       }
     }
     return list;
+  }
+
+  public getEvents() {
+    return this.listEvents();
   }
 }
 

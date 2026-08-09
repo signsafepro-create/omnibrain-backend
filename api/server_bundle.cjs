@@ -32,12 +32,12 @@ __export(server_exports, {
   default: () => server_default
 });
 module.exports = __toCommonJS(server_exports);
-var import_express = __toESM(require("express"), 1);
+var import_express5 = __toESM(require("express"), 1);
 var import_path2 = __toESM(require("path"), 1);
 var import_dotenv = __toESM(require("dotenv"), 1);
-var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
+var import_jsonwebtoken2 = __toESM(require("jsonwebtoken"), 1);
 var import_bcryptjs = __toESM(require("bcryptjs"), 1);
-var import_stripe = __toESM(require("stripe"), 1);
+var import_stripe3 = __toESM(require("stripe"), 1);
 var import_genai = require("@google/genai");
 
 // src/database.ts
@@ -614,9 +614,283 @@ var Database = class {
 };
 var db = new Database();
 
+// src/routes/auth.ts
+var import_express = require("express");
+
+// src/middleware/security.ts
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
+var JWT_SECRET = process.env.JWT_SECRET || "sovereign_secret_key_change_in_production";
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ success: false, error: "Access token required" });
+  }
+  import_jsonwebtoken.default.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ success: false, error: "Invalid or expired token" });
+    }
+    req.user = decoded;
+    next();
+  });
+}
+function generateToken(payload) {
+  return import_jsonwebtoken.default.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+}
+
+// src/routes/auth.ts
+var router = (0, import_express.Router)();
+router.post("/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: "Email and password are required" });
+    }
+    const user = await db.createUser(email, password);
+    const token = generateToken({ id: user.id, email: user.email, tier: user.tier });
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: { id: user.id, email: user.email, tier: user.tier, apiKey: user.apiKey }
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: "Email and password are required" });
+    }
+    const user = await db.verifyUser(email, password);
+    if (!user) {
+      return res.status(401).json({ success: false, error: "Invalid credentials" });
+    }
+    const token = generateToken({ id: user.id, email: user.email, tier: user.tier });
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: { id: user.id, email: user.email, tier: user.tier, apiKey: user.apiKey }
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+router.get("/me", authenticateToken, (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, error: "Not authenticated" });
+  }
+  const user = db.getUsers().find((u) => u.id === req.user?.id);
+  res.json({
+    success: true,
+    data: user ? { id: user.id, email: user.email, tier: user.tier, apiKey: user.apiKey, balance: user.balance } : req.user
+  });
+});
+var auth_default = router;
+
+// src/routes/predict.ts
+var import_express2 = require("express");
+var router2 = (0, import_express2.Router)();
+router2.get("/candidates", (req, res) => {
+  try {
+    const candidates = db.getCandidates();
+    res.json({
+      success: true,
+      data: candidates
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+router2.post("/evaluate", (req, res) => {
+  try {
+    const { candidateId, revenueRunRate, growthRate } = req.body;
+    const candidates = db.getCandidates();
+    const candidate = candidates.find((c) => c.id === candidateId);
+    if (!candidate) {
+      return res.status(404).json({ success: false, error: "Candidate not found" });
+    }
+    const calculatedValuationHigh = Math.round((revenueRunRate || candidate.revenue) * (growthRate || 1.5) * 12);
+    const calculatedValuationLow = Math.round(calculatedValuationHigh * 0.7);
+    const adjustedProbability = Math.min(0.99, Math.max(0.1, candidate.ipoProbability + (growthRate ? (growthRate - 1) * 0.1 : 0)));
+    res.json({
+      success: true,
+      data: {
+        candidateId: candidate.id,
+        name: candidate.name,
+        valuationLow: calculatedValuationLow,
+        valuationHigh: calculatedValuationHigh,
+        adjustedProbability,
+        confidence: candidate.confidence,
+        timestamp: (/* @__PURE__ */ new Date()).toISOString()
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+var predict_default = router2;
+
+// src/routes/sovereign.ts
+var import_express3 = require("express");
+var router3 = (0, import_express3.Router)();
+router3.get("/status", (req, res) => {
+  try {
+    const events = db.getEvents ? db.getEvents() : [];
+    res.json({
+      success: true,
+      data: {
+        agentStatus: "ONLINE",
+        activeThreads: 12,
+        convergenceScore: 98.4,
+        geminiConnected: true,
+        lastScanTime: (/* @__PURE__ */ new Date()).toISOString(),
+        eventCount: events.length
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+router3.post("/dispatch", (req, res) => {
+  try {
+    const { action, target } = req.body;
+    if (!action) {
+      return res.status(400).json({ success: false, error: "Action parameter required" });
+    }
+    const event = {
+      id: `task_${Date.now()}`,
+      action,
+      target: target || "global",
+      status: "EXECUTING",
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    if (db.appendEvent) {
+      db.appendEvent("AGENT_DISPATCH", event);
+    }
+    res.json({
+      success: true,
+      data: event
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+var sovereign_default = router3;
+
+// src/routes/payments.ts
+var import_express4 = require("express");
+var import_stripe = __toESM(require("stripe"), 1);
+var router4 = (0, import_express4.Router)();
+var stripeSecret = process.env.STRIPE_SECRET_KEY || "sk_test_mock_key";
+var stripe = new import_stripe.default(stripeSecret, { apiVersion: "2025-01-27.acacia" });
+router4.post("/checkout", async (req, res) => {
+  try {
+    const { tier, email, successUrl, cancelUrl } = req.body;
+    if (!tier || !email) {
+      return res.status(400).json({ success: false, error: "Tier and email are required" });
+    }
+    const prices = {
+      pro: 4900,
+      premium: 19900,
+      enterprise: 99900,
+      institution: 499900
+    };
+    const amount = prices[tier.toLowerCase()] || 4900;
+    if (process.env.STRIPE_SECRET_KEY) {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        customer_email: email,
+        line_items: [
+          {
+            price_data: {
+              currency: "usd",
+              product_data: { name: `LILJR Sovereign Stack - ${tier.toUpperCase()} Tier` },
+              unit_amount: amount
+            },
+            quantity: 1
+          }
+        ],
+        mode: "payment",
+        success_url: successUrl || "https://x-sovereign.com/success",
+        cancel_url: cancelUrl || "https://x-sovereign.com/cancel"
+      });
+      return res.json({ success: true, data: { checkoutUrl: session.url, sessionId: session.id } });
+    } else {
+      const mockSessionId = `cs_test_${Date.now()}`;
+      return res.json({
+        success: true,
+        data: {
+          checkoutUrl: `${successUrl || "https://x-sovereign.com/success"}?session_id=${mockSessionId}`,
+          sessionId: mockSessionId,
+          isMock: true
+        }
+      });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+var payments_default = router4;
+
+// src/routes/stripeWebhook.ts
+var import_stripe2 = __toESM(require("stripe"), 1);
+var stripeSecret2 = process.env.STRIPE_SECRET_KEY || "sk_test_mock_key";
+var endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || "";
+var stripe2 = new import_stripe2.default(stripeSecret2, { apiVersion: "2025-01-27.acacia" });
+async function handleStripeWebhook(req, res) {
+  const sig = req.headers["stripe-signature"];
+  let event;
+  if (endpointSecret && sig) {
+    try {
+      const rawBody = req.rawBody || JSON.stringify(req.body);
+      event = stripe2.webhooks.constructEvent(rawBody, sig, endpointSecret);
+    } catch (err) {
+      console.warn("[Webhook Error] Signature verification failed:", err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  } else {
+    event = req.body;
+  }
+  console.log(`[Webhook Event Received] ${event.type}`);
+  try {
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object;
+        const email = session.customer_email || session.customer_details?.email;
+        if (email) {
+          db.updateUserTier(email, "pro");
+          console.log(`[Webhook] User ${email} upgraded to Pro tier`);
+        }
+        break;
+      }
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object;
+        const email = invoice.customer_email;
+        if (email) {
+          db.updateUserTier(email, "pro");
+          console.log(`[Webhook] Invoice paid for ${email}`);
+        }
+        break;
+      }
+      default:
+        console.log(`[Webhook] Unhandled event type: ${event.type}`);
+    }
+    res.json({ received: true });
+  } catch (err) {
+    console.error("[Webhook Processing Error]", err.message);
+    res.status(500).json({ error: "Internal processing error" });
+  }
+}
+
 // server.ts
 import_dotenv.default.config();
-var JWT_SECRET = process.env.JWT_SECRET || "ipo-brain-secret-key-2026";
+var JWT_SECRET2 = process.env.JWT_SECRET || "ipo-brain-secret-key-2026";
 var GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY || "";
 var GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROQ_KEY || "";
 var ai = new import_genai.GoogleGenAI({
@@ -627,9 +901,9 @@ var ai = new import_genai.GoogleGenAI({
     }
   }
 });
-var app = (0, import_express.default)();
+var app = (0, import_express5.default)();
 var PORT = 3e3;
-app.use(import_express.default.json({
+app.use(import_express5.default.json({
   limit: "50mb",
   verify: (req, res, buf) => {
     req.rawBody = buf;
@@ -678,7 +952,7 @@ app.get("/api/v1/health", (req, res) => {
     timestamp: (/* @__PURE__ */ new Date()).toISOString()
   });
 });
-var authenticateToken = (req, res, next) => {
+var authenticateToken2 = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
@@ -692,7 +966,7 @@ var authenticateToken = (req, res, next) => {
     req.user = { id: user.id, email: user.email, tier: user.tier };
     return next();
   }
-  import_jsonwebtoken.default.verify(token, JWT_SECRET, (err, decoded) => {
+  import_jsonwebtoken2.default.verify(token, JWT_SECRET2, (err, decoded) => {
     if (err) {
       return res.status(403).json({ error: "Invalid token or expired session" });
     }
@@ -712,7 +986,7 @@ app.post("/api/v1/auth/signup", async (req, res) => {
     }
     const passwordHash = await import_bcryptjs.default.hash(password, 10);
     const user = db.createUser(email, passwordHash, tier || "free");
-    const token = import_jsonwebtoken.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET, { expiresIn: "7d" });
+    const token = import_jsonwebtoken2.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET2, { expiresIn: "7d" });
     res.json({
       message: "Account created successfully",
       token,
@@ -737,7 +1011,7 @@ app.post("/api/v1/auth/login", async (req, res) => {
     if (!passwordValid) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-    const token = import_jsonwebtoken.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET, { expiresIn: "7d" });
+    const token = import_jsonwebtoken2.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET2, { expiresIn: "7d" });
     res.json({
       message: "Login successful",
       token,
@@ -748,7 +1022,7 @@ app.post("/api/v1/auth/login", async (req, res) => {
     res.status(500).json({ error: "Failed to authenticate" });
   }
 });
-app.get("/api/v1/auth/me", authenticateToken, (req, res) => {
+app.get("/api/v1/auth/me", authenticateToken2, (req, res) => {
   const user = db.findUserByEmail(req.user.email);
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -757,7 +1031,7 @@ app.get("/api/v1/auth/me", authenticateToken, (req, res) => {
     user: { id: user.id, email: user.email, tier: user.tier, createdAt: user.createdAt, apiKey: user.apiKey }
   });
 });
-app.post("/api/v1/auth/regenerate-key", authenticateToken, (req, res) => {
+app.post("/api/v1/auth/regenerate-key", authenticateToken2, (req, res) => {
   try {
     const user = db.findUserByEmail(req.user.email);
     if (!user) {
@@ -784,7 +1058,7 @@ app.post("/api/v1/subscriptions/confirm-mock-payment", async (req, res) => {
     } else {
       user = db.updateUserTier(email, tier);
     }
-    const token = import_jsonwebtoken.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET, { expiresIn: "7d" });
+    const token = import_jsonwebtoken2.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET2, { expiresIn: "7d" });
     res.json({
       message: `Successfully elevated account ${user.email} to ${tier.toUpperCase()} tier!`,
       token,
@@ -795,6 +1069,14 @@ app.post("/api/v1/subscriptions/confirm-mock-payment", async (req, res) => {
     res.status(500).json({ error: "Failed to update subscription tier" });
   }
 });
+app.get("/api/v1/health", (req, res) => {
+  res.json({ status: "ok", service: "x-sovereign-engine", version: "3.0.0", timestamp: (/* @__PURE__ */ new Date()).toISOString() });
+});
+app.use("/api/v1/auth", auth_default);
+app.use("/api/v1/predict", predict_default);
+app.use("/api/v1/sovereign", sovereign_default);
+app.use("/api/v1/payments", payments_default);
+app.post("/webhooks/stripe", handleStripeWebhook);
 app.get("/api/v1/candidates", (req, res) => {
   res.json(db.getCandidates());
 });
@@ -1040,7 +1322,7 @@ app.post("/api/v1/billing/create-checkout-session", async (req, res) => {
   const isStripeConfigured = Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith("sk_"));
   if (isStripeConfigured) {
     try {
-      const stripeInstance = new import_stripe.default(process.env.STRIPE_SECRET_KEY);
+      const stripeInstance = new import_stripe3.default(process.env.STRIPE_SECRET_KEY);
       const session = await stripeInstance.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -1090,7 +1372,7 @@ app.post("/api/v1/billing/create-checkout-session", async (req, res) => {
     message: `Instant Sandbox Activation: Upgraded user session to ${requestedTier.toUpperCase()} tier ($${amount}/mo).`
   });
 });
-app.post("/api/v1/wallet/deposit", authenticateToken, async (req, res) => {
+app.post("/api/v1/wallet/deposit", authenticateToken2, async (req, res) => {
   try {
     const { amount } = req.body;
     if (amount === void 0 || typeof amount !== "number" || amount <= 0) {
@@ -1101,7 +1383,7 @@ app.post("/api/v1/wallet/deposit", authenticateToken, async (req, res) => {
     const sessionId = `cs_wallet_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     db.createWalletTransaction(email, "deposit", amount, "pending", sessionId);
     if (isStripeConfigured) {
-      const stripeInstance = new import_stripe.default(process.env.STRIPE_SECRET_KEY);
+      const stripeInstance = new import_stripe3.default(process.env.STRIPE_SECRET_KEY);
       const session = await stripeInstance.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: [
@@ -1148,7 +1430,7 @@ app.post("/api/v1/wallet/deposit", authenticateToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-app.post("/api/v1/wallet/withdraw", authenticateToken, async (req, res) => {
+app.post("/api/v1/wallet/withdraw", authenticateToken2, async (req, res) => {
   try {
     const { amount } = req.body;
     if (amount === void 0 || typeof amount !== "number" || amount <= 0) {
@@ -1183,7 +1465,7 @@ app.post("/api/v1/wallet/withdraw", authenticateToken, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-app.get("/api/v1/wallet/transactions", authenticateToken, (req, res) => {
+app.get("/api/v1/wallet/transactions", authenticateToken2, (req, res) => {
   try {
     const email = req.user.email;
     const transactions = db.getWalletTransactions(email);
@@ -1225,12 +1507,12 @@ app.post("/api/v1/user/saved", (req, res) => {
 });
 app.post("/api/v1/billing/webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const endpointSecret2 = process.env.STRIPE_WEBHOOK_SECRET;
   let event;
-  if (endpointSecret && sig) {
+  if (endpointSecret2 && sig) {
     try {
-      const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-      event = stripe.webhooks.constructEvent(req.rawBody || JSON.stringify(req.body), sig, endpointSecret);
+      const stripe3 = require("stripe")(process.env.STRIPE_SECRET_KEY);
+      event = stripe3.webhooks.constructEvent(req.rawBody || JSON.stringify(req.body), sig, endpointSecret2);
     } catch (err) {
       console.warn("[Webhook] Stripe signature verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -1363,7 +1645,7 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = import_path2.default.join(process.cwd(), "dist");
-    app.use(import_express.default.static(distPath));
+    app.use(import_express5.default.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(import_path2.default.join(distPath, "index.html"));
     });
@@ -1373,7 +1655,7 @@ async function startServer() {
     setTimeout(runGeminiMarketScan, 3e3);
   });
 }
-if (process.env.VERCEL !== "1" && !process.env.NOW_REGION && !process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.RUN_SERVER === "true") {
+if (process.env.VERCEL !== "1" && !process.env.NOW_REGION && !process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.RUN_SERVER !== "false") {
   startServer();
 }
 var server_default = app;

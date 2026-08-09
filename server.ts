@@ -6,6 +6,11 @@ import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { db, eventBus } from "./src/database";
+import authRouter from "./src/routes/auth";
+import predictRouter from "./src/routes/predict";
+import sovereignRouter from "./src/routes/sovereign";
+import paymentsRouter from "./src/routes/payments";
+import { handleStripeWebhook } from "./src/routes/stripeWebhook";
 
 dotenv.config();
 
@@ -243,8 +248,15 @@ app.post("/api/v1/subscriptions/confirm-mock-payment", async (req, res) => {
 // ----------------------------------------------------
 
 app.get("/api/v1/health", (req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+  res.json({ status: "ok", service: "x-sovereign-engine", version: "3.0.0", timestamp: new Date().toISOString() });
 });
+
+// Modular Routes Registration
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/predict", predictRouter);
+app.use("/api/v1/sovereign", sovereignRouter);
+app.use("/api/v1/payments", paymentsRouter);
+app.post("/webhooks/stripe", handleStripeWebhook);
 
 app.get("/api/v1/candidates", (req, res) => {
   res.json(db.getCandidates());
@@ -951,7 +963,7 @@ async function startServer() {
   });
 }
 
-if (process.env.VERCEL !== "1" && !process.env.NOW_REGION && !process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.RUN_SERVER === "true") {
+if (process.env.VERCEL !== "1" && !process.env.NOW_REGION && !process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.RUN_SERVER !== "false") {
   startServer();
 }
 

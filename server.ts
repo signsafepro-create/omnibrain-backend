@@ -22,7 +22,7 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.GROQ_KEY || "";
 
 // Initialize Gemini Client
 const ai = new GoogleGenAI({
-  apiKey: GEMINI_API_KEY || "AIzaSyDummyFallbackKeyForInitialization",
+  apiKey: GEMINI_API_KEY,
   httpOptions: {
     headers: {
       'User-Agent': 'aistudio-build',

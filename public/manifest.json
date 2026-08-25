@@ -1,0 +1,13 @@
+{
+  "name": "LIL.JR 2.0 Empire Command Center",
+  "short_name": "LIL.JR",
+  "description": "AI Empire Command Center — 7 systems. One screen. Total control.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f97316",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

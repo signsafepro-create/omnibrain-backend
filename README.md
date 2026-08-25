@@ -1,54 +1,28 @@
-# X-SOVEREIGN — Unified IPO Intelligence Terminal
+# 🔥 LIL.JR 2.0 EMPIRE COMMAND CENTER
+## Unified Production Build — 21 Backend Files + Go-Live Infrastructure
 
-> End-to-end full-stack AI-powered IPO intelligence dashboard with real-time market scanning, OMNIBRAIN chat, Stripe payment integration, and autonomous marketing dispatch.
-
-## Quick Start (Local)
-
-```bash
-npm install
-npm run dev
+### QUICK START
+```powershell
+cd C:\Users\wjhmo\LILJR-2.0-EMPIRE
+node deploy.js
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+### SYSTEMS (7 Brands)
+| System | Name | Endpoint |
+|--------|------|----------|
+| Brain | Make It Real | /api/brain/* |
+| Website | One-Second Site | /api/website/* |
+| App | App Forge | /api/app/* |
+| Email | Signal Fire | /api/email/* |
+| Dashboard | Command Deck | /api/dashboard/* |
+| Phone | Direct Line | /api/phone/* |
+| Chatbot | Talk Engine | /api/chatbot/* |
 
-## Production Build
-
-```bash
-npm run build
-RUN_SERVER=true node dist/server.cjs
+### TESTING
+```powershell
+npm test
 ```
+Runs 350 tests (50 per system) + real-world scenarios.
 
-## Deployment
-
-### GitHub Actions → Cloudflare Pages
-
-1. Fork/clone this repo.
-2. Add the following secrets in **Settings → Secrets → Actions**:
-
-| Secret | Value |
-|--------|-------|
-| `CF_API_TOKEN` | Your Cloudflare API token (Pages:Edit) |
-| `CF_ACCOUNT_ID` | Your Cloudflare account ID |
-
-3. Push to `main` — the workflow builds and deploys automatically.
-
-### Custom Domain
-
-After the first deployment, go to **Cloudflare Pages → your project → Custom Domains** and add your domain.
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in your keys:
-
-```bash
-cp .env.example .env
-```
-
-## Tech Stack
-
-- **Frontend**: React 19 + Vite + Tailwind CSS 4
-- **Backend**: Express + TypeScript (bundled via esbuild)
-- **AI**: Google Gemini 2.5 Pro / Flash
-- **Payments**: Stripe Checkout + Webhooks
-- **Database**: SQLite (better-sqlite3)
-- **CI/CD**: GitHub Actions → Cloudflare Pages
+### 5-CLIENT DEPLOYMENT
+Copy project folder → change .env → `docker-compose up --build -d`

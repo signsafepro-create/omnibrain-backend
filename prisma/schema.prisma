@@ -1,0 +1,78 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Tier {
+  FREE
+  PRO
+  PREMIUM
+  ENTERPRISE
+  INSTITUTION
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  tier         Tier          @default(FREE)
+  apiKey       String?       @unique
+  balance      Float         @default(0.0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     Session[]
+  payments     Payment[]
+  predictions  Prediction[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Prediction {
+  id             String   @id @default(uuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  candidateId    String
+  valuationLow   Float
+  valuationHigh  Float
+  ipoProbability Float
+  score          Float
+  createdAt      DateTime @default(now())
+}
+
+model SovereignAgent {
+  id        String   @id @default(uuid())
+  name      String
+  status    String   @default("IDLE")
+  config    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount          Float
+  stripeSessionId String?
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  level     String   @default("INFO")
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+}

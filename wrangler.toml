@@ -1,0 +1,14 @@
+name = "omnibrain-backend"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+[[routes]]
+pattern = "x-sovereign.com/*"
+zone_name = "x-sovereign.com"
+
+[[routes]]
+pattern = "api.x-sovereign.com/*"
+zone_name = "x-sovereign.com"

@@ -36,13 +36,14 @@ var import_express5 = __toESM(require("express"), 1);
 var import_path2 = __toESM(require("path"), 1);
 var import_dotenv = __toESM(require("dotenv"), 1);
 var import_jsonwebtoken2 = __toESM(require("jsonwebtoken"), 1);
-var import_bcryptjs = __toESM(require("bcryptjs"), 1);
+var import_bcryptjs2 = __toESM(require("bcryptjs"), 1);
 var import_stripe3 = __toESM(require("stripe"), 1);
 var import_genai = require("@google/genai");
 
 // src/database.ts
 var import_fs = __toESM(require("fs"), 1);
 var import_path = __toESM(require("path"), 1);
+var import_bcryptjs = __toESM(require("bcryptjs"), 1);
 var import_events = require("events");
 var eventBus = new import_events.EventEmitter();
 var DB_PATH = process.env.VERCEL === "1" || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === "production" ? import_path.default.join("/tmp", "db.json") : import_path.default.join(process.cwd(), "data", "db.json");
@@ -444,6 +445,12 @@ var Database = class {
   findUserByApiKey(apiKey) {
     return this.data.users.find((u) => u.apiKey === apiKey);
   }
+  async verifyUser(email, passwordPlain) {
+    const user = this.findUserByEmail(email);
+    if (!user) return void 0;
+    const match = await import_bcryptjs.default.compare(passwordPlain, user.passwordHash);
+    return match ? user : void 0;
+  }
   createUser(email, passwordHash, tier = "free") {
     const user = {
       id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -610,6 +617,9 @@ var Database = class {
       }
     }
     return list;
+  }
+  getEvents() {
+    return this.listEvents();
   }
 };
 var db = new Database();
@@ -984,7 +994,7 @@ app.post("/api/v1/auth/signup", async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: "Account already exists with this email" });
     }
-    const passwordHash = await import_bcryptjs.default.hash(password, 10);
+    const passwordHash = await import_bcryptjs2.default.hash(password, 10);
     const user = db.createUser(email, passwordHash, tier || "free");
     const token = import_jsonwebtoken2.default.sign({ id: user.id, email: user.email, tier: user.tier }, JWT_SECRET2, { expiresIn: "7d" });
     res.json({
@@ -1007,7 +1017,7 @@ app.post("/api/v1/auth/login", async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
-    const passwordValid = await import_bcryptjs.default.compare(password, user.passwordHash);
+    const passwordValid = await import_bcryptjs2.default.compare(password, user.passwordHash);
     if (!passwordValid) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -1053,7 +1063,7 @@ app.post("/api/v1/subscriptions/confirm-mock-payment", async (req, res) => {
     }
     let user = db.findUserByEmail(email);
     if (!user) {
-      const dummyHash = await import_bcryptjs.default.hash("password123", 10);
+      const dummyHash = await import_bcryptjs2.default.hash("password123", 10);
       user = db.createUser(email, dummyHash, tier);
     } else {
       user = db.updateUserTier(email, tier);

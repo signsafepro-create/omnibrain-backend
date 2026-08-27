@@ -1116,7 +1116,7 @@ Generate a new high-confidence IPO signal. Respond strictly with raw valid JSON 
   "scoreShift": 0.5
 }`;
     const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.5-flash",
       contents: prompt
     });
     const text = response.text || "";
@@ -1338,9 +1338,9 @@ app.post("/api/v1/billing/create-checkout-session", async (req, res) => {
         line_items: [
           {
             price_data: {
-              currency: "usd",
+              currency: "cad",
               product_data: {
-                name: `IPO BRAIN - ${requestedTier.toUpperCase()} Subscription`,
+                name: `IPO BRAIN - ${requestedTier.toUpperCase()} Subscription (CAD)`,
                 description: `Access real-time signal convergence analytics for tech & AI unicorns`
               },
               unit_amount: amount * 100
@@ -1361,7 +1361,7 @@ app.post("/api/v1/billing/create-checkout-session", async (req, res) => {
         isStripeConfigured: true,
         tier: requestedTier,
         amount,
-        currency: "usd",
+        currency: "cad",
         checkoutUrl: session.url,
         sessionId: session.id,
         message: "Redirecting to live Stripe checkout gateway..."
@@ -1376,10 +1376,10 @@ app.post("/api/v1/billing/create-checkout-session", async (req, res) => {
     isStripeConfigured: false,
     tier: requestedTier,
     amount,
-    currency: "usd",
+    currency: "cad",
     checkoutUrl: `/?checkout_success=true&tier=${requestedTier}`,
     sessionId: `cs_test_${Date.now()}`,
-    message: `Instant Sandbox Activation: Upgraded user session to ${requestedTier.toUpperCase()} tier ($${amount}/mo).`
+    message: `Instant Sandbox Activation: Upgraded user session to ${requestedTier.toUpperCase()} tier ($${amount} CAD/mo).`
   });
 });
 app.post("/api/v1/wallet/deposit", authenticateToken2, async (req, res) => {
@@ -1399,7 +1399,7 @@ app.post("/api/v1/wallet/deposit", authenticateToken2, async (req, res) => {
         line_items: [
           {
             price_data: {
-              currency: "usd",
+              currency: "cad",
               product_data: {
                 name: "IPO BRAIN - Sovereign Wallet Deposit",
                 description: "Funds deposit into personal pre-IPO signal dashboard wallet"

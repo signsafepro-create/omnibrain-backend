@@ -46,9 +46,9 @@ export default function StatsGrid({ stats }: StatsGridProps) {
       border: "border-white/10 hover:border-[#06b6d4]/30",
     },
     {
-      title: "Real Stripe Revenue",
-      value: `$${totalRevenue.toLocaleString()}`,
-      change: `Processed ${paymentEvents.length} live transactions`,
+      title: "Real Stripe Revenue (CAD)",
+      value: `$${totalRevenue.toLocaleString()} CAD`,
+      change: `Processed ${paymentEvents.length} live CAD transactions`,
       icon: DollarSign,
       color: "text-emerald-400",
       border: "border-white/10 hover:border-emerald-500/30",

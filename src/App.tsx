@@ -22,7 +22,7 @@ export default function App() {
   const [stats, setStats] = useState({
     totalCandidates: 8,
     topPickConfidence: "92%",
-    peakValuationEst: "$1,455B",
+    peakValuationEst: "$1,455B CAD",
     signalAccuracy: "94.2%",
     avgProbability: "62%",
     lastScanTime: new Date().toISOString(),

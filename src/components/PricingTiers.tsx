@@ -10,7 +10,7 @@ export default function PricingTiers({ currentTier, onSelectTier }: PricingTiers
     {
       id: "free",
       name: "Explorer",
-      price: "$0",
+      price: "$0 CAD",
       period: "forever",
       desc: "For new users testing the system.",
       features: [
@@ -34,7 +34,7 @@ export default function PricingTiers({ currentTier, onSelectTier }: PricingTiers
     {
       id: "pro",
       name: "Creator",
-      price: "$39",
+      price: "$39 CAD",
       period: "month",
       desc: "For builders, creators, and solo founders.",
       features: [
@@ -58,7 +58,7 @@ export default function PricingTiers({ currentTier, onSelectTier }: PricingTiers
     {
       id: "premium",
       name: "Operator",
-      price: "$149",
+      price: "$149 CAD",
       period: "month",
       desc: "For power users and small teams.",
       features: [
@@ -83,7 +83,7 @@ export default function PricingTiers({ currentTier, onSelectTier }: PricingTiers
     {
       id: "enterprise",
       name: "Sovereign",
-      price: "$799",
+      price: "$799 CAD",
       period: "month",
       desc: "For businesses, startups, and advanced users.",
       features: [
@@ -110,7 +110,7 @@ export default function PricingTiers({ currentTier, onSelectTier }: PricingTiers
     {
       id: "institution",
       name: "Strategic",
-      price: "$3,500",
+      price: "$3,500 CAD",
       period: "month",
       desc: "For financial institutions and research labs.",
       features: [

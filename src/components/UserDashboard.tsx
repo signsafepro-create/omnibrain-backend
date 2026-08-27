@@ -67,13 +67,13 @@ export default function UserDashboard({
   const getTierDisplay = () => {
     switch (currentTier) {
       case "pro":
-        return "Creator ($19/mo)";
+        return "Creator ($39 CAD/mo)";
       case "premium":
-        return "Operator ($49/mo)";
+        return "Operator ($149 CAD/mo)";
       case "enterprise":
-        return "Sovereign ($199/mo)";
+        return "Sovereign ($799 CAD/mo)";
       case "institution":
-        return "Strategic ($499/mo)";
+        return "Strategic ($3,500 CAD/mo)";
       default:
         return "Explorer (Free)";
     }

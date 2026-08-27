@@ -1,0 +1,27 @@
+{
+  "name": "x-sovereign-hyper",
+  "version": "3.0.0-2056",
+  "platform": "hyper-cloud",
+  "type": "unified-sovereign-node",
+  "build": {
+    "command": "npm run build:prod",
+    "output": "dist",
+    "entrypoint": "dist/server.cjs"
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3000",
+    "CURRENCY": "CAD",
+    "APP_NAME": "X-SOVEREIGN HYPER PLATFORM"
+  },
+  "services": {
+    "web": {
+      "port": 3000,
+      "healthCheck": "/api/v1/health"
+    },
+    "brain": {
+      "port": 5000,
+      "script": "python api/main.py"
+    }
+  }
+}

@@ -130,7 +130,7 @@ export default function UserDashboard({
             type="password"
             value={geminiKey}
             onChange={(e) => handleGeminiKeyChange(e.target.value)}
-            placeholder="Enter AIzaSy... key to connect"
+            placeholder="Enter your Gemini API key"
             className="w-full py-2.5 px-3 rounded-lg bg-[#0f172a] border border-white/10 focus:border-[#8b5cf6]/40 text-white placeholder-slate-600 text-xs focus:outline-none font-mono"
           />
           <p className="text-[9px] text-[#64748b] leading-relaxed">

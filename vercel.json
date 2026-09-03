@@ -1,38 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/server_bundle.cjs",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/server_bundle.cjs"
-    },
-    {
-      "src": "/webhooks/(.*)",
-      "dest": "/api/server_bundle.cjs"
-    },
-    {
-      "src": "/auth/(.*)",
-      "dest": "/api/server_bundle.cjs"
-    },
-    {
-      "src": "/predict/(.*)",
-      "dest": "/api/server_bundle.cjs"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
-    }
-  ]
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "nodeVersion": "20.x",
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

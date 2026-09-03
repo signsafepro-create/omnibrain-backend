@@ -480,7 +480,7 @@ app.post("/api/v1/generate-image", async (req, res) => {
       if (response.candidates && response.candidates[0]?.content?.parts) {
         for (const part of response.candidates[0].content.parts) {
           if (part.inlineData) {
-            base64Image = part.inlineData.data;
+            base64Image = part.inlineData.data || "";
             break;
           }
         }

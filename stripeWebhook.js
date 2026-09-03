@@ -20,7 +20,7 @@ router.post('/', express.raw({type: 'application/json'}), (req, res) => {
 const stripeWebhook = require('./stripeWebhook');
       db.run('ALTER TABLE jobs ADD COLUMN stripe_subscription_id TEXT', [], () => {});
       db.run('ALTER TABLE jobs ADD COLUMN paid INTEGER DEFAULT 0', [], () => {});
-      db.run('UPDATE jobs SET stripe_subscription_id = ?, paid = 1 WHERE user_id = ? AND status = 'pending'', [subscriptionId, userId]);
+      db.run("UPDATE jobs SET stripe_subscription_id = ?, paid = 1 WHERE user_id = ? AND status = 'pending'", [subscriptionId, userId]);
       if (global.logAudit) logAudit('stripe_webhook', userId, {subscriptionId});
     } catch (e) {
       console.log('DB update error in webhook:', e.message);
